@@ -52,11 +52,34 @@
 		
 
 		<!-- Error Message -->
-		<% if (request.getAttribute("error") != null) { %>
-		    <div class="error-msg">
-		        <%= request.getAttribute("error") %>
-		    </div>
+		<%-- Session expired message --%>
+		<% if ("true".equals(request.getParameter("expired"))) { %>
+		<div class="alert alert-warning">
+		    <i class="fas fa-clock"></i>
+		    Your session has expired. Please sign in again.
+		</div>
 		<% } %>
+		
+		<%-- Success message (after registration or password reset) --%>
+		<% if (request.getParameter("success") != null) { %>
+		<div class="alert alert-success">
+		    <i class="fas fa-check-circle"></i>
+		    <%= request.getParameter("success") %>
+		</div>
+		<% } %>
+		
+		<%-- Error message (wrong password, locked, deactivated) --%>
+		<% if (request.getAttribute("error") != null) { %>
+		<%
+		    String errorType = (String) request.getAttribute("errorType");
+		    String alertClass = "LOCKED".equals(errorType) ? "alert-locked" : "alert-error";
+		%>
+		<div class="alert <%= alertClass %>">
+		    <i class="fas fa-<%= "LOCKED".equals(errorType) ? "lock" : "exclamation-circle" %>"></i>
+		    <%= request.getAttribute("error") %>
+		</div>
+		<% } %>
+		
 		
 		<!-- Success Message (after registration) -->
 		<% if (request.getParameter("success") != null) { %>
@@ -105,7 +128,7 @@
 					<div class="form-group">
 						<div class="label-row">
 							<label for="password" class="form-label">Password</label>
-							<a href="forgotPassword.jsp" class="forgot-link">Forgot?</a>
+							<a href="${pageContext.request.contextPath}/forgot-password">Forgot?</a>
 						</div>
 						<div class="form-input-wrapper">
 							<span class="input-icon">🔒</span>
