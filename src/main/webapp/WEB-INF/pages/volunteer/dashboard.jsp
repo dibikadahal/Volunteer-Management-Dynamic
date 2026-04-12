@@ -91,7 +91,9 @@
                 <i class="fas fa-bell"></i>
                 <span class="notif-dot"></span>
             </div>
-            <div class="vol-avatar"><%= initials %></div>
+            <a href="${pageContext.request.contextPath}/volunteer/profile" style="text-decoration:none;">
+			    <div class="vol-avatar"><%= initials %></div>
+			</a>
         </div>
     </div>
 
