@@ -97,6 +97,14 @@
 
     <!-- Page Body -->
     <div class="page-body">
+    
+    	<% if (request.getParameter("success") != null) { %>
+        <div style="background:rgba(56,201,176,0.12); border:1px solid rgba(56,201,176,0.25);
+                    color:#38c9b0; padding:12px 16px; border-radius:10px;
+                    font-size:13px; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-check-circle"></i> <%= request.getParameter("success") %>
+        </div>
+        <% } %>
 
         <!-- Welcome Banner -->
         <div class="welcome-banner">
