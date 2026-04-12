@@ -1023,4 +1023,21 @@ html, body {
     font-size: 13px;
     margin-bottom: 20px;
 }
+
+
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.alert-error   { background: rgba(224,92,151,0.12); border: 1px solid rgba(224,92,151,0.25); color: #f08cb0; }
+.alert-locked  { background: rgba(245,166,35,0.12);  border: 1px solid rgba(245,166,35,0.3);  color: #f5a623; }
+.alert-warning { background: rgba(245,166,35,0.12);  border: 1px solid rgba(245,166,35,0.3);  color: #f5a623; }
+.alert-success { background: rgba(56,201,176,0.12);  border: 1px solid rgba(56,201,176,0.25); color: #38c9b0; }
 }
