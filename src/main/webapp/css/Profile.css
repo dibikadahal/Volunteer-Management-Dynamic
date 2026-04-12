@@ -1,0 +1,298 @@
+@charset "UTF-8";
+
+/* ══════════════════════════════════════
+   profile.css — User Profile Page
+   ══════════════════════════════════════ */
+
+/* ── Profile Card ── */
+.profile-card {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+}
+
+/* ── Photo Section ── */
+.photo-section {
+    background: linear-gradient(135deg,
+        rgba(56,201,176,0.2) 0%,
+        rgba(79,142,247,0.15) 50%,
+        rgba(124,92,191,0.12) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+/* Circular avatar wrapper */
+.avatar-wrap {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(56,201,176,0.4);
+    display: block;
+}
+
+.avatar-initials {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    border: 4px solid rgba(56,201,176,0.4);
+}
+
+/* Camera edit button */
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border: 2px solid var(--bg-card);
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.avatar-edit-btn:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+.photo-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.photo-hint small {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ── Profile Identity ── */
+.profile-identity {
+    padding: 24px 32px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.profile-fullname {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.profile-username {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.profile-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.profile-role-badge.volunteer {
+    background: rgba(56,201,176,0.15);
+    color: var(--accent-teal);
+    border: 1px solid rgba(56,201,176,0.2);
+}
+
+.profile-role-badge.admin {
+    background: rgba(124,92,191,0.15);
+    color: var(--accent-purple);
+    border: 1px solid rgba(124,92,191,0.2);
+}
+
+/* ── Alerts ── */
+.profile-alert {
+    margin: 16px 32px 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+.profile-alert.success {
+    background: rgba(56,201,176,0.12);
+    border: 1px solid rgba(56,201,176,0.25);
+    color: var(--accent-teal);
+}
+
+.profile-alert.error {
+    background: rgba(224,92,151,0.12);
+    border: 1px solid rgba(224,92,151,0.25);
+    color: var(--accent-pink);
+}
+
+/* ── Form Grid ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 28px 32px;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-full {
+    grid-column: 1 / -1;
+}
+
+.field-group label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.field-wrap i {
+    position: absolute;
+    left: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.field-wrap input,
+.field-wrap textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px 11px 40px;
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    resize: none;
+}
+
+.field-wrap textarea {
+    padding-top: 12px;
+    line-height: 1.6;
+}
+
+.field-wrap input::placeholder,
+.field-wrap textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.field-wrap input:focus,
+.field-wrap textarea:focus {
+    border-color: var(--accent-teal);
+    box-shadow: 0 0 0 3px rgba(56,201,176,0.12);
+    background: rgba(255,255,255,0.06);
+}
+
+/* Readonly fields */
+.field-wrap.readonly input {
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    background: rgba(255,255,255,0.02);
+}
+
+.field-wrap.readonly input:focus {
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+/* Textarea wrap */
+.textarea-wrap {
+    align-items: flex-start;
+}
+
+.textarea-wrap i {
+    top: 14px;
+}
+
+/* ── Save Button ── */
+.save-row {
+    padding: 0 32px 32px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, var(--accent-teal), var(--accent-blue));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.save-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+/* ── Animation ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
