@@ -142,8 +142,10 @@ public class ProfileController extends HttpServlet {
         String role = (String) session.getAttribute("userRole");
         String base = "admin".equals(role) ? "/admin/profile" : "/volunteer/profile";
 
+     
         if (updated) {
-            response.sendRedirect(request.getContextPath() + base + "?success=Profile+updated+successfully");
+            String dashboard = "admin".equals(role) ? "/admin/dashboard" : "/volunteer/dashboard";
+            response.sendRedirect(request.getContextPath() + dashboard + "?success=Profile+updated+successfully");
         } else {
             response.sendRedirect(request.getContextPath() + base + "?error=Failed+to+update+profile");
         }
