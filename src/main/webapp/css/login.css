@@ -1023,21 +1023,47 @@ html, body {
     font-size: 13px;
     margin-bottom: 20px;
 }
+}
 
+/* ══════════════════════════════════════
+   ADD THESE to your existing login.css
+   ══════════════════════════════════════ */
 
 .alert {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 8px;
     font-size: 13px;
     margin-bottom: 16px;
     line-height: 1.5;
+    text-align: left;
+    display: block;
 }
 
-.alert-error   { background: rgba(224,92,151,0.12); border: 1px solid rgba(224,92,151,0.25); color: #f08cb0; }
-.alert-locked  { background: rgba(245,166,35,0.12);  border: 1px solid rgba(245,166,35,0.3);  color: #f5a623; }
-.alert-warning { background: rgba(245,166,35,0.12);  border: 1px solid rgba(245,166,35,0.3);  color: #f5a623; }
-.alert-success { background: rgba(56,201,176,0.12);  border: 1px solid rgba(56,201,176,0.25); color: #38c9b0; }
+.alert-error {
+    background: rgba(220, 53, 69, 0.08);
+    border: 1px solid rgba(220, 53, 69, 0.25);
+    color: #c0392b;
 }
+
+.alert-locked {
+    background: rgba(255, 152, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    color: #e65100;
+}
+
+.alert-warning {
+    background: rgba(255, 193, 7, 0.08);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #b8860b;
+}
+
+.alert-success {
+    background: rgba(40, 167, 69, 0.08);
+    border: 1px solid rgba(40, 167, 69, 0.25);
+    color: #1e7e34;
+}
+
+
+
+
