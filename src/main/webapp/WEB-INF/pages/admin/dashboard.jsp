@@ -81,7 +81,10 @@
                 <i class="fas fa-bell"></i>
                 <span class="notif-dot"></span>
             </div>
-            <div class="admin-avatar"><%= initials %></div>
+            <%-- Avatar — clicking goes to profile --%>
+            <a href="${pageContext.request.contextPath}/admin/profile" style="text-decoration:none;">
+                <div class="admin-avatar"><%= initials %></div>
+            </a>
         </div>
     </div>
 
@@ -270,9 +273,11 @@
         document.getElementById('live-time').textContent = h + ':' + m + ':' + s;
 
         var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        document.getElementById('live-date').textContent = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
-        document.getElementById('live-day').textContent  = days[now.getDay()];
+        var months = ['January','February','March','April','May','June','July',
+                      'August','September','October','November','December'];
+        document.getElementById('live-date').textContent =
+            months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+        document.getElementById('live-day').textContent = days[now.getDay()];
     }
     updateClock();
     setInterval(updateClock, 1000);
