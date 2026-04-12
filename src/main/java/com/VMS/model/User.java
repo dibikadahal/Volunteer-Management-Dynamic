@@ -3,62 +3,84 @@ package com.VMS.model;
 import java.sql.Timestamp;
 
 public class User {
-
-    private String id;
-    private String email;
-    private String username;
-    private boolean emailVerified;
-    private String image;
-    private String password;
-    private String phone;
-    private String bio;
-    private String role;           // "admin", "staff", or "volunteer"
-    private boolean isActive;
-    private boolean twoFactorEnabled;
+    private String    id;
+    private String    firstName;
+    private String    lastName;
+    private String    email;
+    private String    username;
+    private String    password;
+    private String    phone;
+    private String    bio;
+    private String    image;
+    private String    role;
+    private boolean   isActive;
     private Timestamp createdAt;
-    private Timestamp updatedAt;
 
-    // Default constructor
+    // ── Constructors ──
     public User() {}
-    
- // ── Getters & Setters ──────────────────────────────────────
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public User(String email, String username, String password) {
+        this.email    = email;
+        this.username = username;
+        this.password = password;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    // ── Getters & Setters ──
+    public String getId()                     { return id; }
+    public void   setId(String id)            { this.id = id; }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getFirstName()              { return firstName; }
+    public void   setFirstName(String v)      { this.firstName = v; }
 
-    public boolean isEmailVerified() { return emailVerified; }
-    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+    public String getLastName()               { return lastName; }
+    public void   setLastName(String v)       { this.lastName = v; }
 
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
+    public String getEmail()                  { return email; }
+    public void   setEmail(String v)          { this.email = v; }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getUsername()               { return username; }
+    public void   setUsername(String v)       { this.username = v; }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getPassword()               { return password; }
+    public void   setPassword(String v)       { this.password = v; }
 
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
+    public String getPhone()                  { return phone; }
+    public void   setPhone(String v)          { this.phone = v; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public String getBio()                    { return bio; }
+    public void   setBio(String v)            { this.bio = v; }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean isActive) { this.isActive = isActive; }
+    public String getImage()                  { return image; }
+    public void   setImage(String v)          { this.image = v; }
 
-    public boolean isTwoFactorEnabled() { return twoFactorEnabled; }
-    public void setTwoFactorEnabled(boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
+    public String getRole()                   { return role; }
+    public void   setRole(String v)           { this.role = v; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public boolean getIsActive()              { return isActive; }
+    public void    setIsActive(boolean v)     { this.isActive = v; }
 
-    public Timestamp getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public Timestamp getCreatedAt()           { return createdAt; }
+    public void      setCreatedAt(Timestamp v){ this.createdAt = v; }
+
+    // ── Helper: full name ──
+    public String getFullName() {
+        String f = firstName != null ? firstName.trim() : "";
+        String l = lastName  != null ? lastName.trim()  : "";
+        if (!f.isEmpty() && !l.isEmpty()) return f + " " + l;
+        if (!f.isEmpty()) return f;
+        if (!l.isEmpty()) return l;
+        return username;
+    }
+
+    // ── Helper: initials for avatar fallback ──
+    public String getInitials() {
+        String f = firstName != null && !firstName.isEmpty() ? firstName : "";
+        String l = lastName  != null && !lastName.isEmpty()  ? lastName  : "";
+        if (!f.isEmpty() && !l.isEmpty())
+            return String.valueOf(f.charAt(0)).toUpperCase()
+                 + String.valueOf(l.charAt(0)).toUpperCase();
+        if (!f.isEmpty()) return String.valueOf(f.charAt(0)).toUpperCase();
+        return username != null && !username.isEmpty()
+            ? String.valueOf(username.charAt(0)).toUpperCase() : "U";
+    }
 }
