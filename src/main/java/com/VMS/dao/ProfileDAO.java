@@ -55,7 +55,8 @@ public class ProfileDAO {
             ps.setString(5, phone);
             ps.setString(6, bio);
             ps.setString(7, id);
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
+            return true; // 0 rows affected = data unchanged, still a success
 
         } catch (SQLException e) {
             e.printStackTrace();

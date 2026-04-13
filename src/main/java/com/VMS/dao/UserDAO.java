@@ -154,18 +154,20 @@ public class UserDAO {
         if (usernameExists(user.getUsername())) return false;
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
-        String sql = "INSERT INTO `user` (id, email, username, password, phone, role, isActive) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, generateId());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getUsername());
-            ps.setString(4, hashedPassword);
-            ps.setString(5, user.getPhone());
-            ps.setString(6, "volunteer");
-            ps.setBoolean(7, true);
+            ps.setString(2, user.getFirstName());
+            ps.setString(3, user.getLastName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getUsername());
+            ps.setString(6, hashedPassword);
+            ps.setString(7, user.getPhone());
+            ps.setString(8, "volunteer");
+            ps.setBoolean(9, true);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
