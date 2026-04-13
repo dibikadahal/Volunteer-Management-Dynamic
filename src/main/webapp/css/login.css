@@ -280,7 +280,7 @@ html, body {
 
 /* ===== LOGIN SIDE ===== */
 .login-side {
-    flex: 0 0 520px;;
+    flex: 0 0 520px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1003,8 +1003,9 @@ html, body {
         width: 44px;
         height: 44px;
     }
-    
-    .error-msg {
+}
+
+.error-msg {
     background: #fef2f2;
     color: #b91c1c;
     border: 1px solid #fecaca;
@@ -1014,7 +1015,7 @@ html, body {
     margin-bottom: 20px;
 }
 
-	.success-msg {
+.success-msg {
     background: #f0fdf4;
     color: #15803d;
     border: 1px solid #bbf7d0;
@@ -1022,7 +1023,6 @@ html, body {
     padding: 11px 14px;
     font-size: 13px;
     margin-bottom: 20px;
-}
 }
 
 /* ══════════════════════════════════════
@@ -1063,7 +1063,6 @@ html, body {
     border: 1px solid rgba(40, 167, 69, 0.25);
     color: #1e7e34;
 }
-
 
 
 
