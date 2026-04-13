@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VolunteerHub - Create Account</title>
-    <link rel="stylesheet" href="css/register.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/register.css">
 </head>
 <body>
     <div class="background">
@@ -25,7 +25,7 @@
         <!-- Left side - Illustration/Info -->
         <div class="illustration-side">
             <div class="illustration-wrapper">
-                <img src="images/Volunteers_login.jpg" alt="Volunteers" class="illustration-img">
+                <img src="${pageContext.request.contextPath}/images/Volunteers_login.jpg" alt="Volunteers" class="illustration-img">
                 <div class="illustration-overlay">
                     <div class="glow-effect"></div>
                 </div>
