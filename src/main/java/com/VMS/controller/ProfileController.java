@@ -112,9 +112,10 @@ public class ProfileController extends HttpServlet {
                 return;
             }
 
-            // Build upload directory path inside webapp/uploads/profiles/
-            String uploadDir = getServletContext().getRealPath("") + File.separator
-                             + "uploads" + File.separator + "profiles";
+            // Save to a permanent directory outside the deploy folder so
+            // files survive Eclipse republishes.
+            String uploadDir = System.getProperty("user.home") + File.separator
+                             + "vms_uploads" + File.separator + "profiles";
             Files.createDirectories(Paths.get(uploadDir));
 
             // Generate unique filename to avoid conflicts
@@ -144,10 +145,9 @@ public class ProfileController extends HttpServlet {
 
      
         if (updated) {
-            String dashboard = "admin".equals(role) ? "/admin/dashboard" : "/volunteer/dashboard";
-            response.sendRedirect(request.getContextPath() + dashboard + "?success=Profile+updated+successfully");
+            response.sendRedirect(request.getContextPath() + base + "?success=Profile+updated+successfully");
         } else {
-            response.sendRedirect(request.getContextPath() + base + "?error=Failed+to+update+profile");
+            response.sendRedirect(request.getContextPath() + base + "?error=Failed+to+update+profile.+Please+try+again.");
         }
     }
 

@@ -23,8 +23,13 @@ public class PasswordResetController extends HttpServlet {
 
     private final PasswordResetDAO resetDao = new PasswordResetDAO();
 
-    // ── Base URL of your app — change port/context if needed ──
-    private static final String BASE_URL = "http://localhost:8081/VolunteerManagement";
+    /** Build the base URL dynamically so it works on any port/host. */
+    private String getBaseUrl(HttpServletRequest request) {
+        return request.getScheme() + "://"
+             + request.getServerName() + ":"
+             + request.getServerPort()
+             + request.getContextPath();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -100,7 +105,7 @@ public class PasswordResetController extends HttpServlet {
         // prevents email enumeration attacks)
         if (resetDao.emailExists(email)) {
             String token     = resetDao.createResetToken(email);
-            String resetLink = BASE_URL + "/reset-password?token=" + token;
+            String resetLink = getBaseUrl(request) + "/reset-password?token=" + token;
 
             try {
                 EmailService.sendPasswordResetEmail(email, resetLink);

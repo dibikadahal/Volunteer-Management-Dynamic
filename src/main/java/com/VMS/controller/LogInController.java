@@ -7,7 +7,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 
-@WebServlet("/login")
+// @WebServlet("/OLDlogin")
 public class LogInController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
