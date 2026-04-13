@@ -28,11 +28,6 @@ public class EmailService {
      */
     public static void sendPasswordResetEmail(String toEmail, String resetLink) throws MessagingException, Exception {
 
-        System.out.println("=== EMAIL DEBUG ===");
-        System.out.println("Sending to: " + toEmail);
-        System.out.println("Reset link: " + resetLink);
-        System.out.println("From: " + SENDER_EMAIL);
-
         Properties props = new Properties();
         props.put("mail.smtp.auth",            "true");
         props.put("mail.smtp.starttls.enable", "true");
