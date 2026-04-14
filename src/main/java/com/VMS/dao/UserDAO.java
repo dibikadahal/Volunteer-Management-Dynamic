@@ -36,10 +36,10 @@ public class UserDAO {
 
             if (rs.next()) {
 
-                // ── Check if account is deactivated ──
+                // ── Check if account is inactive (pending approval or deactivated) ──
                 if (!rs.getBoolean("isActive")) {
                     throw new LoginException("DEACTIVATED",
-                        "Your account has been deactivated. Please contact the admin.");
+                        "Your account is pending admin approval or has been deactivated. Please contact the administrator.");
                 }
 
                 // ── Check if account is currently locked ──
@@ -167,7 +167,7 @@ public class UserDAO {
             ps.setString(6, hashedPassword);
             ps.setString(7, user.getPhone());
             ps.setString(8, "volunteer");
-            ps.setBoolean(9, true);
+            ps.setBoolean(9, false);   // pending admin approval
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
