@@ -1,5 +1,7 @@
 package com.VMS.controller;
 
+import com.VMS.dao.AdminDashboardDAO;
+import com.VMS.dao.VolunteerDashboardDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,13 +13,15 @@ import java.io.IOException;
 @WebServlet({"/admin/dashboard", "/volunteer/dashboard"})
 public class DashboardController extends HttpServlet {
 
+    private final AdminDashboardDAO     adminDao     = new AdminDashboardDAO();
+    private final VolunteerDashboardDAO volunteerDao = new VolunteerDashboardDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
 
-        // ── Session guard — redirect to login if not logged in ──
         if (session == null || session.getAttribute("userId") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
@@ -26,37 +30,40 @@ public class DashboardController extends HttpServlet {
         String role = (String) session.getAttribute("userRole");
         String path = request.getServletPath();
 
-        // ── Role guard — prevent wrong role accessing wrong dashboard ──
+        // Role guard
         if (path.equals("/admin/dashboard") && !"admin".equals(role)) {
             response.sendRedirect(request.getContextPath() + "/volunteer/dashboard");
             return;
         }
-
         if (path.equals("/volunteer/dashboard") && !"volunteer".equals(role)) {
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
 
-        // ── Forward to correct dashboard ──
         if (path.equals("/admin/dashboard")) {
-            // TODO: set admin stats from DAO here when ready
-            // e.g. request.setAttribute("totalVolunteers", adminDao.countVolunteers());
+
+            // ── Stats ──
+            request.setAttribute("totalVolunteers",   adminDao.countTotalVolunteers());
+            request.setAttribute("activeVolunteers",  adminDao.countActiveVolunteers());
+            request.setAttribute("pendingCount",      adminDao.countPendingVolunteers());
+
+            // ── Pending registration requests ──
+            request.setAttribute("pendingVolunteers", adminDao.getPendingVolunteers());
+
+            // ── Recent approved volunteers (for the bottom panel) ──
+            request.setAttribute("recentVolunteers",  adminDao.getRecentApprovedVolunteers(5));
+
             request.getRequestDispatcher("/WEB-INF/pages/admin/dashboard.jsp")
                    .forward(request, response);
 
         } else if (path.equals("/volunteer/dashboard")) {
-            // TODO: replace these with real DAO calls when ready:
-            // String userId = (String) session.getAttribute("userId");
-            // request.setAttribute("totalAttended", volunteerDao.countAttended(userId));
-            // request.setAttribute("upcomingCount",  volunteerDao.countUpcoming(userId));
-            // request.setAttribute("hoursServed",    volunteerDao.getTotalHours(userId));
-            // request.setAttribute("badgesEarned",   volunteerDao.countBadges(userId));
 
-            // Placeholder values for now
-            request.setAttribute("totalAttended", 12);
-            request.setAttribute("upcomingCount",  4);
-            request.setAttribute("hoursServed",    38);
-            request.setAttribute("badgesEarned",   3);
+            String userId = (String) session.getAttribute("userId");
+
+            request.setAttribute("totalAttended", volunteerDao.countEventsAttended(userId));
+            request.setAttribute("upcomingCount", volunteerDao.countUpcomingEvents(userId));
+            request.setAttribute("hoursServed",   volunteerDao.getTotalHoursServed(userId));
+            request.setAttribute("badgesEarned",  volunteerDao.countBadgesEarned(userId));
 
             request.getRequestDispatcher("/WEB-INF/pages/volunteer/dashboard.jsp")
                    .forward(request, response);
