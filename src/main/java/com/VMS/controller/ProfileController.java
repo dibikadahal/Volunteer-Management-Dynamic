@@ -114,8 +114,9 @@ public class ProfileController extends HttpServlet {
 
             // Save to a permanent directory outside the deploy folder so
             // files survive Eclipse republishes.
-            String uploadDir = System.getProperty("user.home") + File.separator
-                             + "vms_uploads" + File.separator + "profiles";
+            String uploadDir = getServletContext().getRealPath("") 
+                    + File.separator + "uploads" 
+                    + File.separator + "profiles";
             Files.createDirectories(Paths.get(uploadDir));
 
             // Generate unique filename to avoid conflicts
