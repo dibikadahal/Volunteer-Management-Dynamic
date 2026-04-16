@@ -14,16 +14,7 @@ public class UserDAO {
 
     /**
      * Validate user by email and password.
-     * Handles account lockout logic:
-     *   - Checks if account is locked
-     *   - Increments failedAttempts on wrong password
-     *   - Resets failedAttempts on successful login
-     *   - Locks account after MAX_ATTEMPTS failures
-     *
-     * Returns:
-     *   User object  → login successful
-     *   null         → user not found or password wrong
-     *   Throws LoginException with reason → account locked or deactivated
+     * Checks volunteer table for acceptance status before allowing login
      */
     public User validateUserByEmail(String email, String password) throws LoginException {
         String sql = "SELECT * FROM `user` WHERE email = ?";
@@ -36,10 +27,10 @@ public class UserDAO {
 
             if (rs.next()) {
 
-                // ── Check if account is inactive (pending approval or deactivated) ──
+                // ── Check if account is inactive ──
                 if (!rs.getBoolean("isActive")) {
                     throw new LoginException("DEACTIVATED",
-                        "Your account is pending admin approval or has been deactivated. Please contact the administrator.");
+                        "Your account has been deactivated. Please contact the administrator.");
                 }
 
                 // ── Check if account is currently locked ──
@@ -60,12 +51,24 @@ public class UserDAO {
                     // ── SUCCESS — reset failed attempts ──
                     resetFailedAttempts(userId);
 
+                    // ── For volunteers, check if any registration is ACCEPTED ──
+                    String role = rs.getString("role");
+                    if ("volunteer".equals(role)) {
+                        VolunteerDAO volunteerDao = new VolunteerDAO();
+                        if (!volunteerDao.hasAcceptedVolunteerStatus(userId)) {
+                            throw new LoginException("PENDING_APPROVAL",
+                                "Your volunteer registration is pending admin approval. You will receive an email when approved.");
+                        }
+                    }
+
                     User user = new User();
                     user.setId(userId);
                     user.setEmail(rs.getString("email"));
                     user.setUsername(rs.getString("username"));
+                    user.setFirstName(rs.getString("firstName"));
+                    user.setLastName(rs.getString("lastName"));
                     user.setPhone(rs.getString("phone"));
-                    user.setRole(rs.getString("role"));
+                    user.setRole(role);
                     user.setIsActive(rs.getBoolean("isActive"));
                     return user;
 
@@ -75,13 +78,11 @@ public class UserDAO {
                     int newAttempts     = currentAttempts + 1;
 
                     if (newAttempts >= MAX_ATTEMPTS) {
-                        // Lock the account
                         lockAccount(userId);
                         throw new LoginException("LOCKED",
                             "Too many failed attempts. Your account has been locked for "
                             + LOCKOUT_MINUTES + " minutes.");
                     } else {
-                        // Increment counter, warn user
                         incrementFailedAttempts(userId, newAttempts);
                         int remaining = MAX_ATTEMPTS - newAttempts;
                         throw new LoginException("WRONG_PASSWORD",
@@ -95,80 +96,65 @@ public class UserDAO {
             e.printStackTrace();
         }
 
-        // User not found
         return null;
     }
 
     /**
-     * Reset failed attempts and clear lock after successful login
-     */
-    private void resetFailedAttempts(String userId) {
-        String sql = "UPDATE `user` SET failedAttempts = 0, lockUntil = NULL WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, userId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Increment failed attempts counter
-     */
-    private void incrementFailedAttempts(String userId, int newAttempts) {
-        String sql = "UPDATE `user` SET failedAttempts = ? WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newAttempts);
-            ps.setString(2, userId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Lock the account for LOCKOUT_MINUTES minutes
-     */
-    private void lockAccount(String userId) {
-        String sql = "UPDATE `user` SET failedAttempts = ?, lockUntil = ? WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            Timestamp lockUntil = Timestamp.valueOf(
-                java.time.LocalDateTime.now().plusMinutes(LOCKOUT_MINUTES));
-            ps.setInt(1, MAX_ATTEMPTS);
-            ps.setTimestamp(2, lockUntil);
-            ps.setString(3, userId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Register a new user with BCrypt-hashed password
+     * NEW: Also creates entry in volunteer table with 'pending' status
+     * IMPORTANT: This method requires an eventId parameter now
      */
-    public boolean registerUser(User user) {
+    public boolean registerUser(User user, String eventId) {
         if (emailExists(user.getEmail())) return false;
         if (usernameExists(user.getUsername())) return false;
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
-        String sql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String userId = generateId();
+        
+        // Start transaction: insert into both user and volunteer tables
+        String insertUserSql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
+                              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        String insertVolunteerSql = "INSERT INTO `volunteer` (userId, eventId, status) " +
+                                   "VALUES (?, ?, 'pending')";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, generateId());
-            ps.setString(2, user.getFirstName());
-            ps.setString(3, user.getLastName());
-            ps.setString(4, user.getEmail());
-            ps.setString(5, user.getUsername());
-            ps.setString(6, hashedPassword);
-            ps.setString(7, user.getPhone());
-            ps.setString(8, "volunteer");
-            ps.setBoolean(9, false);   // pending admin approval
-            return ps.executeUpdate() > 0;
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);  // Start transaction
+            
+            // Insert into user table
+            try (PreparedStatement ps1 = conn.prepareStatement(insertUserSql)) {
+                ps1.setString(1, userId);
+                ps1.setString(2, user.getFirstName());
+                ps1.setString(3, user.getLastName());
+                ps1.setString(4, user.getEmail());
+                ps1.setString(5, user.getUsername());
+                ps1.setString(6, hashedPassword);
+                ps1.setString(7, user.getPhone());
+                ps1.setString(8, "volunteer");
+                ps1.setBoolean(9, true);  // isActive = true (user can exist in system)
+                
+                int userInserted = ps1.executeUpdate();
+                if (userInserted == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+            
+            // Insert into volunteer table (with pending status)
+            try (PreparedStatement ps2 = conn.prepareStatement(insertVolunteerSql)) {
+                ps2.setString(1, userId);
+                ps2.setString(2, eventId);
+                
+                int volunteerInserted = ps2.executeUpdate();
+                if (volunteerInserted == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+            
+            conn.commit();  // Both inserts successful
+            return true;
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -217,6 +203,8 @@ public class UserDAO {
             if (rs.next()) {
                 User user = new User();
                 user.setId(rs.getString("id"));
+                user.setFirstName(rs.getString("firstName"));
+                user.setLastName(rs.getString("lastName"));
                 user.setEmail(rs.getString("email"));
                 user.setUsername(rs.getString("username"));
                 user.setPhone(rs.getString("phone"));
@@ -230,16 +218,51 @@ public class UserDAO {
         return null;
     }
 
-    /**
-     * Generate a unique user ID
-     */
+    // Private helper methods
+    private void resetFailedAttempts(String userId) {
+        String sql = "UPDATE `user` SET failedAttempts = 0, lockUntil = NULL WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void incrementFailedAttempts(String userId, int newAttempts) {
+        String sql = "UPDATE `user` SET failedAttempts = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newAttempts);
+            ps.setString(2, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void lockAccount(String userId) {
+        String sql = "UPDATE `user` SET failedAttempts = ?, lockUntil = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            Timestamp lockUntil = Timestamp.valueOf(
+                java.time.LocalDateTime.now().plusMinutes(LOCKOUT_MINUTES));
+            ps.setInt(1, MAX_ATTEMPTS);
+            ps.setTimestamp(2, lockUntil);
+            ps.setString(3, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private String generateId() {
         return java.util.UUID.randomUUID().toString();
     }
 
     // ══════════════════════════════════════
     // Inner class — LoginException
-    // Carries a reason code and message
     // ══════════════════════════════════════
     public static class LoginException extends Exception {
         private final String reason;
