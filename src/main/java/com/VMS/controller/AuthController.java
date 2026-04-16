@@ -2,7 +2,7 @@ package com.VMS.controller;
 
 import java.io.IOException;
 import com.VMS.dao.UserDAO;
-import com.VMS.dao.UserDAO.LoginException;  
+import com.VMS.dao.UserDAO.LoginException;
 import com.VMS.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -64,7 +64,6 @@ public class AuthController extends HttpServlet {
         }
 
         try {
-            // validateUserByEmail now throws LoginException for lockout/deactivated
             User user = userDao.validateUserByEmail(email.trim(), password);
 
             if (user != null) {
@@ -94,8 +93,7 @@ public class AuthController extends HttpServlet {
             }
 
         } catch (LoginException e) {
-            // ── LOCKOUT or DEACTIVATED ──
-            // Set error type so JSP can style it differently if needed
+            // ── LOCKOUT, DEACTIVATED, or PENDING APPROVAL ──
             request.setAttribute("errorType", e.getReason());
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/pages/login.jsp")
@@ -103,8 +101,9 @@ public class AuthController extends HttpServlet {
         }
     }
 
-    // ══════════════════════════════════════
-    // REGISTER
+    // ════��═════════════════════════════════
+    // REGISTER — Now creates entries in both
+    // user and volunteer tables
     // ══════════════════════════════════════
     private void handleRegister(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -116,6 +115,7 @@ public class AuthController extends HttpServlet {
         String phone           = request.getParameter("phone");
         String password        = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
+        String eventId         = request.getParameter("eventId");  // NEW: Event they're registering for
 
         // Validation
         if (firstName == null || firstName.isEmpty() ||
@@ -143,6 +143,13 @@ public class AuthController extends HttpServlet {
             return;
         }
 
+        if (eventId == null || eventId.isEmpty()) {
+            request.setAttribute("error", "Event ID is required.");
+            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
+                   .forward(request, response);
+            return;
+        }
+
         User user = new User();
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -153,13 +160,22 @@ public class AuthController extends HttpServlet {
         user.setRole("volunteer");
         user.setIsActive(true);
 
-        boolean isRegistered = userDao.registerUser(user);
+        // NEW: Pass eventId to registerUser
+        boolean isRegistered = userDao.registerUser(user, eventId);
 
         if (isRegistered) {
             response.sendRedirect(request.getContextPath()
-                + "/login?success=Account+created+successfully");
+                + "/login?success=Registration+successful!+Awaiting+admin+approval");
         } else {
-            request.setAttribute("error", "Email or username already exists.");
+            String errorMsg = "Registration failed.";
+            
+            if (userDao.emailExists(email)) {
+                errorMsg = "This email address is already registered.";
+            } else if (userDao.usernameExists(username)) {
+                errorMsg = "This username is already taken.";
+            }
+            
+            request.setAttribute("error", errorMsg);
             request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
                    .forward(request, response);
         }
