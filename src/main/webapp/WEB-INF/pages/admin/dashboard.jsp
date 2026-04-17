@@ -8,6 +8,10 @@
     int totalVolunteers  = (Integer) request.getAttribute("totalVolunteers");
     int activeVolunteers = (Integer) request.getAttribute("activeVolunteers");
     int pendingCount     = (Integer) request.getAttribute("pendingCount");
+    int eventsThisMonth  = request.getAttribute("eventsThisMonth") != null
+                           ? (Integer) request.getAttribute("eventsThisMonth") : 0;
+    int openEvents       = request.getAttribute("openEvents") != null
+                           ? (Integer) request.getAttribute("openEvents") : 0;
 
     @SuppressWarnings("unchecked")
     List<User> pendingVolunteers = (List<User>) request.getAttribute("pendingVolunteers");
@@ -235,9 +239,11 @@
 
             <div class="stat-card blue">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="stat-value">—</div>
+                <div class="stat-value"><%= eventsThisMonth %></div>
                 <div class="stat-label">Events This Month</div>
-                <div class="stat-change"><i class="fas fa-clock"></i> Events coming soon</div>
+                <div class="stat-change <%= openEvents > 0 ? "up" : "" %>">
+                    <i class="fas fa-door-open"></i> <%= openEvents %> open event<%= openEvents != 1 ? "s" : "" %>
+                </div>
             </div>
 
         </div>
