@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0"
+         metadata-complete="false">
+
+    <!--
+        ProfileController is declared here explicitly because combining
+        @WebServlet + @MultipartConfig without a web.xml can silently
+        prevent Tomcat from registering the servlet.
+        metadata-complete="false" keeps annotation scanning ON for all
+        other controllers (DashboardController, AuthController, etc.)
+    -->
+    <servlet>
+        <servlet-name>ProfileController</servlet-name>
+        <servlet-class>com.VMS.controller.ProfileController</servlet-class>
+        <multipart-config>
+            <max-file-size>2097152</max-file-size>      <!-- 2 MB -->
+            <max-request-size>5242880</max-request-size> <!-- 5 MB -->
+        </multipart-config>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ProfileController</servlet-name>
+        <url-pattern>/admin/profile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ProfileController</servlet-name>
+        <url-pattern>/volunteer/profile</url-pattern>
+    </servlet-mapping>
+
+    <!-- EventController — registered here to support @MultipartConfig for image uploads -->
+    <servlet>
+        <servlet-name>EventController</servlet-name>
+        <servlet-class>com.VMS.controller.EventController</servlet-class>
+        <multipart-config>
+            <max-file-size>5242880</max-file-size>       <!-- 5 MB per file -->
+            <max-request-size>10485760</max-request-size> <!-- 10 MB total request -->
+        </multipart-config>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>EventController</servlet-name>
+        <url-pattern>/admin/events</url-pattern>
+    </servlet-mapping>
+
+</web-app>
