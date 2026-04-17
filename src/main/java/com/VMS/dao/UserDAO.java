@@ -14,7 +14,7 @@ public class UserDAO {
 
     /**
      * Validate user by email and password.
-     * Checks volunteer table for acceptance status before allowing login
+     * Inactive volunteers are treated as "pending admin approval".
      */
     public User validateUserByEmail(String email, String password) throws LoginException {
         String sql = "SELECT * FROM `user` WHERE email = ?";
@@ -29,6 +29,12 @@ public class UserDAO {
 
                 // ── Check if account is inactive ──
                 if (!rs.getBoolean("isActive")) {
+                    String role = rs.getString("role");
+                    if ("volunteer".equals(role)) {
+                        throw new LoginException("PENDING",
+                            "Your registration is pending admin approval. "
+                            + "You will be notified once an admin reviews your account.");
+                    }
                     throw new LoginException("DEACTIVATED",
                         "Your account has been deactivated. Please contact the administrator.");
                 }
@@ -46,20 +52,11 @@ public class UserDAO {
                 // ── Check password ──
                 String hashedPassword = rs.getString("password");
                 String userId         = rs.getString("id");
+                String role           = rs.getString("role");
 
                 if (BCrypt.checkpw(password, hashedPassword)) {
                     // ── SUCCESS — reset failed attempts ──
                     resetFailedAttempts(userId);
-
-                    // ── For volunteers, check if any registration is ACCEPTED ──
-                    String role = rs.getString("role");
-                    if ("volunteer".equals(role)) {
-                        VolunteerDAO volunteerDao = new VolunteerDAO();
-                        if (!volunteerDao.hasAcceptedVolunteerStatus(userId)) {
-                            throw new LoginException("PENDING_APPROVAL",
-                                "Your volunteer registration is pending admin approval. You will receive an email when approved.");
-                        }
-                    }
 
                     User user = new User();
                     user.setId(userId);
@@ -100,61 +97,33 @@ public class UserDAO {
     }
 
     /**
-     * Register a new user with BCrypt-hashed password
-     * NEW: Also creates entry in volunteer table with 'pending' status
-     * IMPORTANT: This method requires an eventId parameter now
+     * Register a new user.
+     * Sets isActive = FALSE so the account is pending admin approval.
+     * Admin approves via the dashboard (sets isActive = TRUE).
      */
-    public boolean registerUser(User user, String eventId) {
-        if (emailExists(user.getEmail())) return false;
+    public boolean registerUser(User user) {
+        if (emailExists(user.getEmail()))    return false;
         if (usernameExists(user.getUsername())) return false;
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
         String userId = generateId();
-        
-        // Start transaction: insert into both user and volunteer tables
-        String insertUserSql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
-                              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        String insertVolunteerSql = "INSERT INTO `volunteer` (userId, eventId, status) " +
-                                   "VALUES (?, ?, 'pending')";
 
-        try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);  // Start transaction
-            
-            // Insert into user table
-            try (PreparedStatement ps1 = conn.prepareStatement(insertUserSql)) {
-                ps1.setString(1, userId);
-                ps1.setString(2, user.getFirstName());
-                ps1.setString(3, user.getLastName());
-                ps1.setString(4, user.getEmail());
-                ps1.setString(5, user.getUsername());
-                ps1.setString(6, hashedPassword);
-                ps1.setString(7, user.getPhone());
-                ps1.setString(8, "volunteer");
-                ps1.setBoolean(9, true);  // isActive = true (user can exist in system)
-                
-                int userInserted = ps1.executeUpdate();
-                if (userInserted == 0) {
-                    conn.rollback();
-                    return false;
-                }
-            }
-            
-            // Insert into volunteer table (with pending status)
-            try (PreparedStatement ps2 = conn.prepareStatement(insertVolunteerSql)) {
-                ps2.setString(1, userId);
-                ps2.setString(2, eventId);
-                
-                int volunteerInserted = ps2.executeUpdate();
-                if (volunteerInserted == 0) {
-                    conn.rollback();
-                    return false;
-                }
-            }
-            
-            conn.commit();  // Both inserts successful
-            return true;
-            
+        String sql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, 'volunteer', false)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, userId);
+            ps.setString(2, user.getFirstName());
+            ps.setString(3, user.getLastName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getUsername());
+            ps.setString(6, hashedPassword);
+            ps.setString(7, user.getPhone());
+
+            return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
