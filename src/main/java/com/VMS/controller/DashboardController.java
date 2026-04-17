@@ -1,6 +1,7 @@
 package com.VMS.controller;
 
 import com.VMS.dao.AdminDashboardDAO;
+import com.VMS.dao.EventDAO;
 import com.VMS.dao.VolunteerDashboardDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,6 +16,7 @@ public class DashboardController extends HttpServlet {
 
     private final AdminDashboardDAO     adminDao     = new AdminDashboardDAO();
     private final VolunteerDashboardDAO volunteerDao = new VolunteerDashboardDAO();
+    private final EventDAO              eventDao     = new EventDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,10 +44,15 @@ public class DashboardController extends HttpServlet {
 
         if (path.equals("/admin/dashboard")) {
 
-            // ── Stats ──
+            // ── Volunteer stats ──
             request.setAttribute("totalVolunteers",   adminDao.countTotalVolunteers());
             request.setAttribute("activeVolunteers",  adminDao.countActiveVolunteers());
             request.setAttribute("pendingCount",      adminDao.countPendingVolunteers());
+
+            // ── Event stats ──
+            request.setAttribute("eventsThisMonth",   eventDao.countEventsThisMonth());
+            request.setAttribute("openEvents",        eventDao.countOpenEvents());
+            request.setAttribute("totalEvents",       eventDao.countTotalEvents());
 
             // ── Pending registration requests ──
             request.setAttribute("pendingVolunteers", adminDao.getPendingVolunteers());
