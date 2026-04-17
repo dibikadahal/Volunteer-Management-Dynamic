@@ -54,7 +54,6 @@ public class AuthController extends HttpServlet {
         String email    = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // Basic input validation
         if (email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
             request.setAttribute("error", "Email and password are required.");
@@ -67,18 +66,15 @@ public class AuthController extends HttpServlet {
             User user = userDao.validateUserByEmail(email.trim(), password);
 
             if (user != null) {
-                // ── SUCCESS ──
                 HttpSession session = request.getSession();
                 session.setAttribute("userId",   user.getId());
                 session.setAttribute("userName", user.getUsername());
                 session.setAttribute("userRole", user.getRole());
 
-                // Set cookie
                 Cookie userCookie = new Cookie("user_id", user.getId());
                 userCookie.setMaxAge(60 * 60 * 24);
                 response.addCookie(userCookie);
 
-                // Redirect based on role
                 if ("admin".equals(user.getRole())) {
                     response.sendRedirect(request.getContextPath() + "/admin/dashboard");
                 } else {
@@ -86,14 +82,12 @@ public class AuthController extends HttpServlet {
                 }
 
             } else {
-                // User not found in DB
                 request.setAttribute("error", "Invalid email or password.");
                 request.getRequestDispatcher("/WEB-INF/pages/login.jsp")
                        .forward(request, response);
             }
 
         } catch (LoginException e) {
-            // ── LOCKOUT, DEACTIVATED, or PENDING APPROVAL ──
             request.setAttribute("errorType", e.getReason());
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/pages/login.jsp")
@@ -101,9 +95,10 @@ public class AuthController extends HttpServlet {
         }
     }
 
-    // ════��═════════════════════════════════
-    // REGISTER — Now creates entries in both
-    // user and volunteer tables
+    // ══════════════════════════════════════
+    // REGISTER
+    // Creates user with isActive=false.
+    // Admin must approve before login.
     // ══════════════════════════════════════
     private void handleRegister(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -115,7 +110,6 @@ public class AuthController extends HttpServlet {
         String phone           = request.getParameter("phone");
         String password        = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
-        String eventId         = request.getParameter("eventId");  // NEW: Event they're registering for
 
         // Validation
         if (firstName == null || firstName.isEmpty() ||
@@ -143,38 +137,26 @@ public class AuthController extends HttpServlet {
             return;
         }
 
-        if (eventId == null || eventId.isEmpty()) {
-            request.setAttribute("error", "Event ID is required.");
-            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
-                   .forward(request, response);
-            return;
-        }
-
         User user = new User();
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setUsername(username);
+        user.setFirstName(firstName.trim());
+        user.setLastName(lastName.trim());
+        user.setEmail(email.trim());
+        user.setUsername(username.trim());
         user.setPassword(password);
-        user.setPhone(phone);
-        user.setRole("volunteer");
-        user.setIsActive(true);
+        user.setPhone(phone != null ? phone.trim() : null);
 
-        // NEW: Pass eventId to registerUser
-        boolean isRegistered = userDao.registerUser(user, eventId);
+        boolean isRegistered = userDao.registerUser(user);
 
         if (isRegistered) {
             response.sendRedirect(request.getContextPath()
-                + "/login?success=Registration+successful!+Awaiting+admin+approval");
+                + "/login?success=Registration+submitted!+Please+wait+for+admin+approval+before+signing+in.");
         } else {
-            String errorMsg = "Registration failed.";
-            
-            if (userDao.emailExists(email)) {
+            String errorMsg = "Registration failed. Please try again.";
+            if (userDao.emailExists(email.trim())) {
                 errorMsg = "This email address is already registered.";
-            } else if (userDao.usernameExists(username)) {
+            } else if (userDao.usernameExists(username.trim())) {
                 errorMsg = "This username is already taken.";
             }
-            
             request.setAttribute("error", errorMsg);
             request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
                    .forward(request, response);
@@ -192,7 +174,6 @@ public class AuthController extends HttpServlet {
             session.invalidate();
         }
 
-        // Clear cookie
         Cookie cookie = new Cookie("user_id", "");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
