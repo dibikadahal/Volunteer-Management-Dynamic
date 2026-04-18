@@ -17,7 +17,8 @@ public class Event {
     private Timestamp updatedAt;
 
     // Computed — not stored in DB, filled by DAO join
-    private int volunteerCount;
+    private int    volunteerCount;
+    private String myStatus; // null = not applied, "pending", "accepted", "declined"
 
     public Event() {}
 
@@ -57,6 +58,9 @@ public class Event {
 
     public int       getVolunteerCount()           { return volunteerCount; }
     public void      setVolunteerCount(int v)      { this.volunteerCount = v; }
+
+    public String    getMyStatus()                 { return myStatus; }
+    public void      setMyStatus(String v)         { this.myStatus = v; }
 
     // ── Helpers for JSP ───────────────────────────────────
 
