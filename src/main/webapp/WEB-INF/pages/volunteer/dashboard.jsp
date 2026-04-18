@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.VMS.model.VolunteerNotification, java.util.List" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,9 +52,13 @@
     <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item active">
         <i class="fas fa-th-large"></i> Dashboard
     </a>
+    <div class="sidebar-section-label">Events</div>
+    <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item">
+        <i class="fas fa-calendar-alt"></i> All Events
+    </a>
     <div class="sidebar-section-label">My Activities</div>
-    <a href="${pageContext.request.contextPath}/volunteer/events" class="nav-item">
-        <i class="fas fa-calendar-alt"></i> My Events
+    <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item">
+        <i class="fas fa-heart"></i> My Events
     </a>
     <a href="${pageContext.request.contextPath}/volunteer/assignments" class="nav-item">
         <i class="fas fa-tasks"></i> My Assignments
@@ -102,13 +107,55 @@
         </div>
         <% } %>
 
+        <!-- Notifications Panel — accepted / declined events -->
+        <%
+            @SuppressWarnings("unchecked")
+            List<VolunteerNotification> notifications =
+                (List<VolunteerNotification>) request.getAttribute("notifications");
+            if (notifications != null && !notifications.isEmpty()) {
+        %>
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+                    padding:18px 20px; margin-bottom:24px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <i class="fas fa-bell" style="color:#f5a623; font-size:14px;"></i>
+                <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Notifications</span>
+                <span style="font-size:11px; color:var(--text-muted); margin-left:4px;">— updates on your volunteer requests</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <%  for (VolunteerNotification n : notifications) {
+                        boolean accepted = "accepted".equals(n.getStatus());
+                        String bgColor   = accepted ? "rgba(56,201,176,.08)"   : "rgba(224,92,151,.08)";
+                        String border    = accepted ? "rgba(56,201,176,.25)"   : "rgba(224,92,151,.22)";
+                        String txtColor  = accepted ? "#38c9b0"                : "#e05c97";
+                        String icon      = accepted ? "fa-check-circle"        : "fa-times-circle";
+                        String msg       = accepted
+                            ? "You have been <strong>accepted</strong> as a volunteer for"
+                            : "Sorry, your request for";
+                        String suffix    = accepted ? "!" : " was <strong>declined</strong>.";
+                %>
+                <div style="background:<%= bgColor %>; border:1px solid <%= border %>;
+                            border-radius:10px; padding:11px 16px;
+                            display:flex; align-items:center; gap:12px;">
+                    <i class="fas <%= icon %>" style="color:<%= txtColor %>; font-size:16px; flex-shrink:0;"></i>
+                    <div style="flex:1; font-size:13px; color:var(--text-primary); line-height:1.5;">
+                        <%= msg %> <strong>&ldquo;<%= n.getEventTitle() != null ? n.getEventTitle().replace("\"","&quot;") : "" %>&rdquo;</strong><%= suffix %>
+                    </div>
+                    <% if (n.getUpdatedAt() != null && !n.getUpdatedAt().isEmpty()) { %>
+                    <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;"><%= n.getUpdatedAt() %></span>
+                    <% } %>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+
         <!-- Welcome Banner -->
         <div class="welcome-banner">
             <div class="welcome-left">
                 <div class="welcome-tag"><i class="fas fa-heart"></i> Volunteer Member</div>
                 <h1>Welcome back, <span class="gradient-text"><%= volunteerName %></span>!</h1>
                 <p>Every effort you make creates a ripple of positive change. Keep going!</p>
-                <a href="${pageContext.request.contextPath}/volunteer/events" class="browse-btn">
+                <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="browse-btn">
                     <i class="fas fa-search"></i> Browse Events
                 </a>
             </div>
@@ -159,14 +206,14 @@
             <div class="panel panel-tall">
                 <div class="panel-header">
                     <h3><i class="fas fa-calendar-alt"></i> Upcoming Assigned Events</h3>
-                    <a href="${pageContext.request.contextPath}/volunteer/events">View all &rarr;</a>
+                    <a href="${pageContext.request.contextPath}/volunteer/browse-events">View all &rarr;</a>
                 </div>
 
                 <% if (upcomingCount == 0) { %>
                 <div class="empty-panel">
                     <i class="fas fa-calendar-times"></i>
                     <p>You have no upcoming events yet.</p>
-                    <a href="${pageContext.request.contextPath}/volunteer/events">
+                    <a href="${pageContext.request.contextPath}/volunteer/browse-events">
                         <i class="fas fa-search"></i> Browse Events
                     </a>
                 </div>
@@ -176,7 +223,7 @@
                     <div class="empty-panel">
                         <i class="fas fa-calendar-alt"></i>
                         <p>You have <%= upcomingCount %> upcoming event(s).</p>
-                        <a href="${pageContext.request.contextPath}/volunteer/events">View Events</a>
+                        <a href="${pageContext.request.contextPath}/volunteer/browse-events">View Events</a>
                     </div>
                 </div>
                 <% } %>
@@ -191,7 +238,7 @@
                         <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                     </div>
                     <div class="quick-actions">
-                        <a href="${pageContext.request.contextPath}/volunteer/events" class="qa-btn teal-qa">
+                        <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="qa-btn teal-qa">
                             <i class="fas fa-search"></i>
                             <span>Find Events</span>
                         </a>
@@ -272,7 +319,7 @@
             <div class="empty-panel">
                 <i class="fas fa-history"></i>
                 <p>No activity yet. Join your first event to get started!</p>
-                <a href="${pageContext.request.contextPath}/volunteer/events">
+                <a href="${pageContext.request.contextPath}/volunteer/browse-events">
                     <i class="fas fa-search"></i> Find Events
                 </a>
             </div>
