@@ -424,8 +424,8 @@
                 </select>
 
                 <select name="sortDir" class="filter-select" onchange="document.getElementById('searchForm').submit()">
-                    <option value="desc" <%= "desc".equals(sortDir) ? "selected" : "" %>>&#8595; Newest First</option>
-                    <option value="asc"  <%= "asc".equals(sortDir)  ? "selected" : "" %>>&#8593; Oldest First</option>
+                    <option value="desc" <%= "desc".equals(sortDir) ? "selected" : "" %>>&#8595; Descending</option>
+                    <option value="asc"  <%= "asc".equals(sortDir)  ? "selected" : "" %>>&#8593; Ascending</option>
                 </select>
 
                 <button type="submit" class="filter-select" style="cursor:pointer;">
