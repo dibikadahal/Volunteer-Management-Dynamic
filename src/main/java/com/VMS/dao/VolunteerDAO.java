@@ -1,7 +1,11 @@
 package com.VMS.dao;
 
 import com.VMS.config.DBConnection;
+import com.VMS.model.VolunteerNotification;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DAO for volunteer table operations
@@ -69,6 +73,54 @@ public class VolunteerDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Insert a new pending volunteer request. Returns false if already exists.
+     */
+    public boolean requestVolunteer(String userId, String eventId) {
+        if (getVolunteerStatus(userId, eventId) != null) return false;
+        String sql = "INSERT INTO `volunteer` (userId, eventId, status, joinedAt) VALUES (?, ?, 'pending', NOW())";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ps.setString(2, eventId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Return the 5 most recent accepted/declined notifications for a volunteer.
+     * Used to show interactive status messages on the dashboard.
+     */
+    public List<VolunteerNotification> getStatusNotifications(String userId) {
+        List<VolunteerNotification> list = new ArrayList<>();
+        String sql = "SELECT v.status, v.joinedAt, e.id AS eventId, e.title AS eventTitle " +
+                     "FROM `volunteer` v " +
+                     "JOIN `event` e ON v.eventId = e.id " +
+                     "WHERE v.userId = ? AND v.status IN ('accepted', 'declined') " +
+                     "ORDER BY v.joinedAt DESC LIMIT 5";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ResultSet rs = ps.executeQuery();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
+            while (rs.next()) {
+                VolunteerNotification n = new VolunteerNotification();
+                n.setEventId(rs.getString("eventId"));
+                n.setEventTitle(rs.getString("eventTitle"));
+                n.setStatus(rs.getString("status"));
+                Timestamp ts = rs.getTimestamp("joinedAt");
+                n.setUpdatedAt(ts != null ? sdf.format(ts) : "");
+                list.add(n);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     /**
