@@ -1,6 +1,7 @@
 package com.VMS.model;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 public class User {
     private String    id;
@@ -15,6 +16,9 @@ public class User {
     private String    role;
     private boolean   isActive;
     private Timestamp createdAt;
+
+    // Computed — not stored in DB, filled by DAO join
+    private int eventCount;
 
     // ── Constructors ──
     public User() {}
@@ -62,6 +66,9 @@ public class User {
     public Timestamp getCreatedAt()           { return createdAt; }
     public void      setCreatedAt(Timestamp v){ this.createdAt = v; }
 
+    public int  getEventCount()              { return eventCount; }
+    public void setEventCount(int v)         { this.eventCount = v; }
+
     // ── Helper: full name ──
     public String getFullName() {
         String f = firstName != null ? firstName.trim() : "";
@@ -70,6 +77,12 @@ public class User {
         if (!f.isEmpty()) return f;
         if (!l.isEmpty()) return l;
         return username;
+    }
+
+    /** Human-readable joined date: "Jan 25, 2026" */
+    public String getCreatedAtDisplay() {
+        if (createdAt == null) return "—";
+        return new SimpleDateFormat("MMM dd, yyyy").format(createdAt);
     }
 
     // ── Helper: initials for avatar fallback ──
