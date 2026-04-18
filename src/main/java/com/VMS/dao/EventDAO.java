@@ -70,6 +70,58 @@ public class EventDAO {
     }
 
     /**
+     * Return all events enriched with the requesting volunteer's own status.
+     * Used by the volunteer Browse Events page.
+     *
+     * @param userId  the logged-in volunteer's user ID
+     * @param search  optional keyword filter (title / description / location)
+     * @param sortBy  column name (whitelist-checked)
+     * @param sortDir "asc" or "desc"
+     */
+    public List<Event> getAllEventsWithStatus(String userId, String search, String sortBy, String sortDir) {
+        List<Event> events = new ArrayList<>();
+
+        String col = SORT_COLS.contains(sortBy) ? sortBy : "createdAt";
+        String dir = "asc".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
+
+        boolean hasSearch = search != null && !search.trim().isEmpty();
+
+        String sql =
+            "SELECT e.*, COALESCE(vc.cnt, 0) AS volunteerCount, v.status AS myStatus " +
+            "FROM `event` e " +
+            "LEFT JOIN (SELECT eventId, COUNT(*) AS cnt FROM `volunteer` " +
+            "           WHERE status = 'accepted' GROUP BY eventId) vc " +
+            "  ON e.id = vc.eventId " +
+            "LEFT JOIN `volunteer` v ON e.id = v.eventId AND v.userId = ? " +
+            (hasSearch ? "WHERE e.title LIKE ? OR e.description LIKE ? OR e.location LIKE ? " : "") +
+            "ORDER BY e.`" + col + "` " + dir;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int idx = 1;
+            ps.setString(idx++, userId);
+            if (hasSearch) {
+                String like = "%" + search.trim() + "%";
+                ps.setString(idx++, like);
+                ps.setString(idx++, like);
+                ps.setString(idx++, like);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Event e = mapRow(rs);
+                e.setMyStatus(rs.getString("myStatus"));
+                events.add(e);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return events;
+    }
+
+    /**
      * Get a single event by its primary key.
      */
     public Event getEventById(String id) {
