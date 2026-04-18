@@ -2,6 +2,7 @@ package com.VMS.controller;
 
 import com.VMS.dao.AdminDashboardDAO;
 import com.VMS.dao.EventDAO;
+import com.VMS.dao.VolunteerDAO;
 import com.VMS.dao.VolunteerDashboardDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,6 +17,7 @@ public class DashboardController extends HttpServlet {
 
     private final AdminDashboardDAO     adminDao     = new AdminDashboardDAO();
     private final VolunteerDashboardDAO volunteerDao = new VolunteerDashboardDAO();
+    private final VolunteerDAO          volDao       = new VolunteerDAO();
     private final EventDAO              eventDao     = new EventDAO();
 
     @Override
@@ -67,10 +69,11 @@ public class DashboardController extends HttpServlet {
 
             String userId = (String) session.getAttribute("userId");
 
-            request.setAttribute("totalAttended", volunteerDao.countEventsAttended(userId));
-            request.setAttribute("upcomingCount", volunteerDao.countUpcomingEvents(userId));
-            request.setAttribute("hoursServed",   volunteerDao.getTotalHoursServed(userId));
-            request.setAttribute("badgesEarned",  volunteerDao.countBadgesEarned(userId));
+            request.setAttribute("totalAttended",  volunteerDao.countEventsAttended(userId));
+            request.setAttribute("upcomingCount",  volunteerDao.countUpcomingEvents(userId));
+            request.setAttribute("hoursServed",    volunteerDao.getTotalHoursServed(userId));
+            request.setAttribute("badgesEarned",   volunteerDao.countBadgesEarned(userId));
+            request.setAttribute("notifications",  volDao.getStatusNotifications(userId));
 
             request.getRequestDispatcher("/WEB-INF/pages/volunteer/dashboard.jsp")
                    .forward(request, response);
