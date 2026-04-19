@@ -161,6 +161,22 @@ public class UserDAO {
     }
 
     /**
+     * Check if phone number already exists
+     */
+    public boolean phoneExists(String phone) {
+        if (phone == null || phone.trim().isEmpty()) return false;
+        String sql = "SELECT id FROM `user` WHERE phone = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone.trim());
+            return ps.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * Get user by ID
      */
     public User getUserById(String id) {
