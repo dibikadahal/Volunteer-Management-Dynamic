@@ -137,13 +137,42 @@ public class AuthController extends HttpServlet {
             return;
         }
 
+        if (!password.matches(".*[0-9].*") || !password.matches(".*[^A-Za-z0-9].*")) {
+            request.setAttribute("error", "Password must contain at least one number and one special character.");
+            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
+                   .forward(request, response);
+            return;
+        }
+
+        if (userDao.usernameExists(username.trim())) {
+            request.setAttribute("error", "This username is already taken.");
+            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
+                   .forward(request, response);
+            return;
+        }
+
+        if (userDao.emailExists(email.trim())) {
+            request.setAttribute("error", "This email address is already registered.");
+            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
+                   .forward(request, response);
+            return;
+        }
+
+        String phoneTrimmed = (phone != null && !phone.trim().isEmpty()) ? phone.trim() : null;
+        if (phoneTrimmed != null && userDao.phoneExists(phoneTrimmed)) {
+            request.setAttribute("error", "This phone number is already registered.");
+            request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
+                   .forward(request, response);
+            return;
+        }
+
         User user = new User();
         user.setFirstName(firstName.trim());
         user.setLastName(lastName.trim());
         user.setEmail(email.trim());
         user.setUsername(username.trim());
         user.setPassword(password);
-        user.setPhone(phone != null ? phone.trim() : null);
+        user.setPhone(phoneTrimmed);
 
         boolean isRegistered = userDao.registerUser(user);
 
@@ -151,13 +180,7 @@ public class AuthController extends HttpServlet {
             response.sendRedirect(request.getContextPath()
                 + "/login?success=Registration+submitted!+Please+wait+for+admin+approval+before+signing+in.");
         } else {
-            String errorMsg = "Registration failed. Please try again.";
-            if (userDao.emailExists(email.trim())) {
-                errorMsg = "This email address is already registered.";
-            } else if (userDao.usernameExists(username.trim())) {
-                errorMsg = "This username is already taken.";
-            }
-            request.setAttribute("error", errorMsg);
+            request.setAttribute("error", "Registration failed. Please try again.");
             request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
                    .forward(request, response);
         }
