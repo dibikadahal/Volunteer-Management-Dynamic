@@ -783,6 +783,43 @@ html, body {
     50% { opacity: 1; }
 }
 
+/* ===== VALIDATION ===== */
+.alert-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 8px;
+    color: #DC2626;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    animation: slideInDown 0.3s ease;
+}
+
+.alert-icon {
+    font-style: normal;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.field-error {
+    display: none;
+    color: #EF4444;
+    font-size: 11px;
+    margin-top: 3px;
+    padding-left: 2px;
+}
+
+.input-validation {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 16px;
+    text-align: center;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1200px) {
     .illustration-side {
