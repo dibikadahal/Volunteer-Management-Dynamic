@@ -1,6 +1,7 @@
 package com.VMS.controller;
 
 import java.io.IOException;
+import com.VMS.dao.AssignmentDAO;
 import com.VMS.dao.VolunteerDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,7 +13,8 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet({"/admin/approve-volunteer", "/admin/decline-volunteer"})
 public class AdminVolunteerController extends HttpServlet {
 
-    private final VolunteerDAO volunteerDao = new VolunteerDAO();
+    private final VolunteerDAO  volunteerDao  = new VolunteerDAO();
+    private final AssignmentDAO assignmentDao = new AssignmentDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -38,11 +40,18 @@ public class AdminVolunteerController extends HttpServlet {
 
         if (path.equals("/admin/approve-volunteer")) {
             success = volunteerDao.updateVolunteerStatus(userId, eventId, "accepted");
+            if (success) assignmentDao.createAssignment(userId, eventId);
         } else if (path.equals("/admin/decline-volunteer")) {
             success = volunteerDao.updateVolunteerStatus(userId, eventId, "declined");
         }
 
-        String message = success ? "Volunteer status updated" : "Failed to update status";
-        response.sendRedirect(request.getContextPath() + "/admin/pending-volunteers?message=" + message);
+        String message = success ? "Volunteer+status+updated" : "Failed+to+update+status";
+        String param   = success ? "success=" : "error=";
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard?" + param + message);
     }
 }
+
+
+
+
+
