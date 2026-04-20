@@ -73,6 +73,7 @@ public class DashboardController extends HttpServlet {
             request.setAttribute("upcomingCount",  volunteerDao.countUpcomingEvents(userId));
             request.setAttribute("hoursServed",    volunteerDao.getTotalHoursServed(userId));
             request.setAttribute("badgesEarned",   volunteerDao.countBadgesEarned(userId));
+            request.setAttribute("rewardPoints",   volunteerDao.getRewardPoints(userId));
             request.setAttribute("notifications",  volDao.getStatusNotifications(userId));
 
             request.getRequestDispatcher("/WEB-INF/pages/volunteer/dashboard.jsp")
