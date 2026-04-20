@@ -19,6 +19,7 @@ public class User {
 
     // Computed — not stored in DB, filled by DAO join
     private int eventCount;
+    private int rewardPoints;
 
     // ── Constructors ──
     public User() {}
@@ -68,6 +69,9 @@ public class User {
 
     public int  getEventCount()              { return eventCount; }
     public void setEventCount(int v)         { this.eventCount = v; }
+
+    public int  getRewardPoints()            { return rewardPoints; }
+    public void setRewardPoints(int v)       { this.rewardPoints = v; }
 
     // ── Helper: full name ──
     public String getFullName() {
