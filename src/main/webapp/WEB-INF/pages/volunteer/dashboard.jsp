@@ -40,6 +40,8 @@
                         ? (Integer) request.getAttribute("hoursServed")   : 0;
     int badgesEarned  = (request.getAttribute("badgesEarned") != null)
                         ? (Integer) request.getAttribute("badgesEarned")  : 0;
+    int rewardPoints  = (request.getAttribute("rewardPoints") != null)
+                        ? (Integer) request.getAttribute("rewardPoints")  : 0;
 %>
 
 <!-- ══ SIDEBAR ══ -->
@@ -191,10 +193,10 @@
             </div>
 
             <div class="stat-card amber">
-                <div class="stat-icon"><i class="fas fa-award"></i></div>
-                <div class="stat-value"><%= badgesEarned %></div>
-                <div class="stat-label">Badges Earned</div>
-                <div class="stat-sub">Recognition &amp; achievements</div>
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value"><%= rewardPoints %></div>
+                <div class="stat-label">Reward Points</div>
+                <div class="stat-sub"><%= badgesEarned %> badge<%= badgesEarned != 1 ? "s" : "" %> earned</div>
             </div>
 
         </div>
