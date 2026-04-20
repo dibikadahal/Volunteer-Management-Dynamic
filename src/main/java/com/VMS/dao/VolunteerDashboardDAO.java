@@ -1,31 +1,50 @@
 package com.VMS.dao;
 
-/**
- * Volunteer dashboard statistics.
- * Events / assignments / hours / badges all return 0 until those tables are created.
- * Replace each TODO block with a real query once the table exists.
- */
+import com.VMS.config.DBConnection;
+import java.sql.*;
+
 public class VolunteerDashboardDAO {
 
     public int countEventsAttended(String userId) {
-        // TODO: SELECT COUNT(*) FROM assignment WHERE userId=? AND status='attended'
-        return 0;
+        return query("SELECT COUNT(*) FROM `assignment` WHERE userId=? AND attended=TRUE", userId);
     }
 
     public int countUpcomingEvents(String userId) {
-        // TODO: SELECT COUNT(*) FROM assignment a JOIN event e ON a.eventId=e.id
-        //       WHERE a.userId=? AND e.eventDate >= CURDATE() AND a.status='registered'
-        return 0;
+        String sql =
+            "SELECT COUNT(*) FROM `volunteer` v " +
+            "JOIN `event` e ON v.eventId=e.id " +
+            "WHERE v.userId=? AND v.status='accepted' AND e.endsAt > NOW()";
+        return query(sql, userId);
     }
 
     public int getTotalHoursServed(String userId) {
-        // TODO: SELECT COALESCE(SUM(e.durationHours),0) FROM assignment a
-        //       JOIN event e ON a.eventId=e.id WHERE a.userId=? AND a.status='attended'
-        return 0;
+        String sql =
+            "SELECT COALESCE(SUM(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt)), 0) " +
+            "FROM `assignment` a JOIN `event` e ON a.eventId=e.id " +
+            "WHERE a.userId=? AND a.attended=TRUE";
+        return query(sql, userId);
     }
 
+    /** Badges = 1 per 50 reward points earned. */
     public int countBadgesEarned(String userId) {
-        // TODO: SELECT COUNT(*) FROM user_badge WHERE userId=?
+        String sql = "SELECT FLOOR(COALESCE(rewardPoints,0)/50) FROM `user` WHERE id=?";
+        return query(sql, userId);
+    }
+
+    public int getRewardPoints(String userId) {
+        String sql = "SELECT COALESCE(rewardPoints,0) FROM `user` WHERE id=?";
+        return query(sql, userId);
+    }
+
+    private int query(String sql, String userId) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 }
