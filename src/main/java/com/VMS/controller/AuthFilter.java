@@ -40,15 +40,15 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        // ── Redirect context root to login or dashboard ──
+        // ── Context root: logged-in → dashboard, otherwise → landing page ──
         if (path.isEmpty() || path.equals("/")) {
             HttpSession rootSession = req.getSession(false);
             if (rootSession != null && rootSession.getAttribute("userId") != null) {
                 String role = (String) rootSession.getAttribute("userRole");
                 redirectToDashboard(res, contextPath, role);
-            } else {
-                res.sendRedirect(contextPath + "/login");
+                return;
             }
+            res.sendRedirect(contextPath + "/home");
             return;
         }
 
@@ -139,7 +139,8 @@ public class AuthFilter implements Filter {
             || path.equals("/register")
             || path.equals("/logout")
             || path.equals("/forgot-password")
-            || path.equals("/reset-password");
+            || path.equals("/reset-password")
+            || path.equals("/home");
     }
 
     /**
