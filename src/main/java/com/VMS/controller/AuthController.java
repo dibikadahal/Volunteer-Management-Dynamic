@@ -22,7 +22,7 @@ public class AuthController extends HttpServlet {
             throws ServletException, IOException {
         String path = request.getServletPath();
 
-        if (path.equals("/login") || path.equals("") || path.equals("/")) {
+        if (path.equals("/login")) {
             request.getRequestDispatcher("/WEB-INF/pages/login.jsp")
                    .forward(request, response);
         } else if (path.equals("/register")) {
