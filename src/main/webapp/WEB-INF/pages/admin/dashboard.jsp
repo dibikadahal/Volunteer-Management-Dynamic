@@ -1,22 +1,28 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.VMS.model.User, java.util.List, java.text.SimpleDateFormat" %>
+<%@ page import="com.VMS.model.User, java.util.List, java.util.Map, java.text.SimpleDateFormat" %>
 <%
     String adminName = (String) session.getAttribute("userName");
     if (adminName == null) adminName = "Admin";
     String initials = adminName.length() > 0 ? String.valueOf(adminName.charAt(0)).toUpperCase() : "A";
 
-    int totalVolunteers  = (Integer) request.getAttribute("totalVolunteers");
-    int activeVolunteers = (Integer) request.getAttribute("activeVolunteers");
-    int pendingCount     = (Integer) request.getAttribute("pendingCount");
-    int eventsThisMonth  = request.getAttribute("eventsThisMonth") != null
-                           ? (Integer) request.getAttribute("eventsThisMonth") : 0;
-    int openEvents       = request.getAttribute("openEvents") != null
-                           ? (Integer) request.getAttribute("openEvents") : 0;
+    int totalVolunteers   = (Integer) request.getAttribute("totalVolunteers");
+    int activeVolunteers  = (Integer) request.getAttribute("activeVolunteers");
+    int pendingCount      = (Integer) request.getAttribute("pendingCount");
+    int pendingEventCount = request.getAttribute("pendingEventCount") != null
+                            ? (Integer) request.getAttribute("pendingEventCount") : 0;
+    int eventsThisMonth   = request.getAttribute("eventsThisMonth") != null
+                            ? (Integer) request.getAttribute("eventsThisMonth") : 0;
+    int openEvents        = request.getAttribute("openEvents") != null
+                            ? (Integer) request.getAttribute("openEvents") : 0;
 
     @SuppressWarnings("unchecked")
     List<User> pendingVolunteers = (List<User>) request.getAttribute("pendingVolunteers");
     @SuppressWarnings("unchecked")
     List<User> recentVolunteers  = (List<User>) request.getAttribute("recentVolunteers");
+    @SuppressWarnings("unchecked")
+    List<Map<String,Object>> pendingEventRequests =
+        (List<Map<String,Object>>) request.getAttribute("pendingEventRequests");
+    if (pendingEventRequests == null) pendingEventRequests = new java.util.ArrayList<>();
 
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 
@@ -231,10 +237,13 @@
             </div>
 
             <div class="stat-card teal">
-                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
-                <div class="stat-value"><%= activeVolunteers %></div>
-                <div class="stat-label">Active Volunteers</div>
-                <div class="stat-change up"><i class="fas fa-arrow-up"></i> Currently approved</div>
+                <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
+                <div class="stat-value"><%= pendingEventCount %></div>
+                <div class="stat-label">Event Requests</div>
+                <div class="stat-change <%= pendingEventCount > 0 ? "up" : "" %>">
+                    <i class="fas fa-<%= pendingEventCount > 0 ? "bell" : "check" %>"></i>
+                    <%= pendingEventCount > 0 ? "Awaiting approval" : "All caught up" %>
+                </div>
             </div>
 
             <div class="stat-card blue">
@@ -307,33 +316,84 @@
                 <% } %>
             </div>
 
-            <!-- ══ RECENT APPROVED REGISTRATIONS ══ -->
+            <!-- ══ PENDING EVENT JOIN REQUESTS ══ -->
             <div class="panel">
                 <div class="panel-header">
-                    <h3>Recent Approvals</h3>
-                    <a href="${pageContext.request.contextPath}/admin/volunteers">View all &rarr;</a>
+                    <h3>
+                        <i class="fas fa-calendar-plus" style="color:#38c9b0; margin-right:6px;"></i>
+                        Event Requests
+                        <% if (pendingEventCount > 0) { %>
+                            <span class="pending-badge-num"><%= pendingEventCount %></span>
+                        <% } %>
+                    </h3>
+                    <a href="${pageContext.request.contextPath}/admin/assignments">View all &rarr;</a>
                 </div>
-                <% if (recentVolunteers == null || recentVolunteers.isEmpty()) { %>
+
+                <% if (pendingEventRequests.isEmpty()) { %>
                 <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    No approved volunteers yet.
+                    <i class="fas fa-calendar-check"></i>
+                    No pending event requests right now.
                 </div>
                 <% } else { %>
-                <div class="reg-list">
-                    <% int ri = 0; for (User rv : recentVolunteers) {
-                        String rColor = avatarColors[ri % avatarColors.length]; ri++;
-                        String rvDate = rv.getCreatedAt() != null ? sdf.format(rv.getCreatedAt()) : "";
-                    %>
-                    <div class="reg-item">
-                        <div class="reg-avatar <%= rColor %>"><%= rv.getInitials() %></div>
-                        <div class="reg-info">
-                            <div class="reg-name"><%= rv.getFullName() %></div>
-                            <div class="reg-email"><%= rv.getEmail() %></div>
+                <div class="pending-list">
+                <% int ei = 0; for (Map<String,Object> req : pendingEventRequests) {
+                    String eColor    = avatarColors[ei % avatarColors.length]; ei++;
+                    String vName     = (String) req.get("volunteerName");
+                    String vEmail    = (String) req.get("email");
+                    String vUserId   = (String) req.get("userId");
+                    String evId      = (String) req.get("eventId");
+                    String evTitle   = (String) req.get("eventTitle");
+                    String evStarts  = (String) req.get("eventStartsAt");
+                    String evLoc     = (String) req.get("location");
+                    String reqOn     = (String) req.get("requestedOn");
+                    String vInitials = vName != null && vName.trim().length() > 0
+                        ? String.valueOf(vName.trim().charAt(0)).toUpperCase() : "?";
+                %>
+                <div class="pending-item" style="align-items:flex-start; padding:16px 0;">
+                    <div class="reg-avatar <%= eColor %>" style="margin-top:2px;"><%= vInitials %></div>
+                    <div class="pending-info" style="flex:1;">
+                        <div class="pending-name"><%= vName != null ? vName : "—" %></div>
+                        <div class="pending-email"><%= vEmail != null ? vEmail : "" %></div>
+                        <div style="margin-top:6px; padding:8px 10px; border-radius:8px;
+                                    background:rgba(56,201,176,.06); border:1px solid rgba(56,201,176,.15);">
+                            <div style="font-size:12px; font-weight:600; color:var(--text-primary);">
+                                <i class="fas fa-calendar-alt" style="color:#38c9b0; font-size:10px;"></i>
+                                <%= evTitle != null ? evTitle : "—" %>
+                            </div>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+                                <i class="fas fa-clock" style="font-size:9px;"></i> <%= evStarts %>
+                                <% if (evLoc != null && !evLoc.isEmpty()) { %>
+                                &nbsp;·&nbsp;<i class="fas fa-map-marker-alt" style="font-size:9px;"></i> <%= evLoc %>
+                                <% } %>
+                            </div>
                         </div>
-                        <span class="role-badge volunteer">Volunteer</span>
-                        <div class="reg-time"><%= rvDate %></div>
+                        <div style="font-size:10px; color:var(--text-muted); margin-top:5px;">
+                            Requested on <%= reqOn %>
+                        </div>
                     </div>
-                    <% } %>
+                    <div class="pending-actions" style="flex-direction:column; gap:6px; margin-top:2px;">
+                        <form method="POST" action="${pageContext.request.contextPath}/admin/assignments" style="margin:0;">
+                            <input type="hidden" name="action"     value="accept">
+                            <input type="hidden" name="userId"     value="<%= vUserId %>">
+                            <input type="hidden" name="eventId"    value="<%= evId %>">
+                            <input type="hidden" name="redirectTo" value="dashboard">
+                            <button type="submit" class="btn-approve" style="width:100%;">
+                                <i class="fas fa-check"></i> Accept
+                            </button>
+                        </form>
+                        <form method="POST" action="${pageContext.request.contextPath}/admin/assignments"
+                              onsubmit="return confirm('Decline this request?')" style="margin:0;">
+                            <input type="hidden" name="action"     value="decline">
+                            <input type="hidden" name="userId"     value="<%= vUserId %>">
+                            <input type="hidden" name="eventId"    value="<%= evId %>">
+                            <input type="hidden" name="redirectTo" value="dashboard">
+                            <button type="submit" class="btn-decline" style="width:100%;">
+                                <i class="fas fa-times"></i> Decline
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <% } %>
                 </div>
                 <% } %>
             </div>
