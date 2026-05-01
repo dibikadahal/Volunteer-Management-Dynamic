@@ -203,6 +203,9 @@
     <a href="${pageContext.request.contextPath}/admin/events" class="nav-item">
         <i class="fas fa-calendar-alt"></i> Event Management
     </a>
+    <a href="${pageContext.request.contextPath}/admin/calendar" class="nav-item">
+        <i class="fas fa-calendar-week"></i> Calendar
+    </a>
     <a href="${pageContext.request.contextPath}/admin/assignments" class="nav-item">
         <i class="fas fa-link"></i> Assignments
     </a>
