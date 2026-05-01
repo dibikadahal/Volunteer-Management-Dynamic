@@ -103,8 +103,9 @@
             white-space: nowrap;
         }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-        .badge-opened   { background: rgba(56,201,176,.15);  color: #38c9b0; border: 1px solid rgba(56,201,176,.3); }
-        .badge-closed   { background: rgba(224,92,151,.12);  color: #e05c97; border: 1px solid rgba(224,92,151,.25); }
+        .badge-upcoming  { background: rgba(79,142,247,.12);  color: #4f8ef7; border: 1px solid rgba(79,142,247,.3); }
+        .badge-ongoing   { background: rgba(56,201,176,.12);  color: #38c9b0; border: 1px solid rgba(56,201,176,.3); }
+        .badge-finished  { background: rgba(100,100,120,.12); color: var(--text-secondary); border: 1px solid var(--border); }
         .badge-pending  { background: rgba(245,166,35,.12);  color: #f5a623; border: 1px solid rgba(245,166,35,.3); }
         .badge-accepted { background: rgba(56,201,176,.15);  color: #38c9b0; border: 1px solid rgba(56,201,176,.3); }
         .badge-declined { background: rgba(224,92,151,.12);  color: #e05c97; border: 1px solid rgba(224,92,151,.25); }
@@ -381,11 +382,12 @@
                             int rowNum = 0;
                             for (Event ev : events) {
                                 rowNum++;
-                                String evStatus    = ev.getStatus()   != null ? ev.getStatus()   : "closed";
+                                String derived     = ev.getDerivedStatus(); // upcoming | ongoing | finished
+                                String statusLabel = derived.substring(0,1).toUpperCase() + derived.substring(1);
+                                String statusClass = "badge-" + derived;
                                 String loc         = ev.getLocation() != null ? ev.getLocation() : "";
                                 String img         = ev.getImage()    != null ? ev.getImage()    : "";
                                 String myStatus    = ev.getMyStatus(); // null | pending | accepted | declined
-                                String statusClass = "opened".equals(evStatus) ? "badge-opened" : "badge-closed";
 
                                 int cap = 0;
                                 try {
@@ -421,11 +423,11 @@
                             </div>
                         </td>
 
-                        <!-- Event Status -->
+                        <!-- Event Status (auto-derived from dates) -->
                         <td>
                             <span class="badge <%= statusClass %>">
                                 <span class="badge-dot"></span>
-                                <%= "opened".equals(evStatus) ? "Open" : "Closed" %>
+                                <%= statusLabel %>
                             </span>
                         </td>
 
@@ -459,7 +461,7 @@
                                 <span class="badge badge-declined">
                                     <span class="badge-dot"></span> Declined
                                 </span>
-                            <% } else if ("opened".equals(evStatus)) { %>
+                            <% } else if (!"finished".equals(derived)) { %>
                                 <form method="POST" action="${pageContext.request.contextPath}/volunteer/browse-events"
                                       style="display:inline; margin:0;">
                                     <input type="hidden" name="action"  value="request">
@@ -469,7 +471,7 @@
                                     </button>
                                 </form>
                             <% } else { %>
-                                <span style="color:var(--text-muted); font-size:12px;">—</span>
+                                <span style="color:var(--text-muted); font-size:12px;">Finished</span>
                             <% } %>
                         </td>
 
@@ -560,7 +562,7 @@ const EVENTS = [
     startsAt:   '<%= esc(ev.getStartsAtDisplay()) %>',
     endsAt:     '<%= esc(ev.getEndsAtDisplay()) %>',
     maxLimit:   '<%= esc(ev.getMaxLimit() != null ? ev.getMaxLimit() : "") %>',
-    status:     '<%= esc(ev.getStatus()) %>',
+    status:     '<%= esc(ev.getDerivedStatus()) %>',
     location:   '<%= esc(loc) %>',
     image:      '<%= esc(img) %>',
     volCount:   <%= ev.getVolunteerCount() %>,
@@ -604,11 +606,12 @@ function openDetailModal(id) {
     document.getElementById('detailStarts').textContent      = ev.startsAt;
     document.getElementById('detailEnds').textContent        = ev.endsAt;
     document.getElementById('detailCap').textContent         = ev.capDisplay;
-    document.getElementById('detailEventStatus').textContent = ev.status === 'opened' ? 'Open' : 'Closed';
+    const sLabel = ev.status.charAt(0).toUpperCase() + ev.status.slice(1);
+    document.getElementById('detailEventStatus').textContent = sLabel;
 
     const statusBadge = document.getElementById('detailStatusBadge');
-    statusBadge.className = 'badge ' + (ev.status === 'opened' ? 'badge-opened' : 'badge-closed');
-    statusBadge.innerHTML = '<span class="badge-dot"></span>' + (ev.status === 'opened' ? 'Open' : 'Closed');
+    statusBadge.className = 'badge badge-' + ev.status;
+    statusBadge.innerHTML = '<span class="badge-dot"></span>' + sLabel;
 
     // Location
     const locWrap = document.getElementById('detailLocWrap');
