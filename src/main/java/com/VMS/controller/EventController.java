@@ -137,12 +137,15 @@ public class EventController extends HttpServlet {
             eventDao.clearEventImage(id.trim());
         }
 
+        String redirectTo = request.getParameter("redirectTo");
+        String base = "calendar".equals(redirectTo)
+            ? request.getContextPath() + "/admin/calendar"
+            : request.getContextPath() + "/admin/events";
+
         if (ok) {
-            response.sendRedirect(request.getContextPath()
-                + "/admin/events?success=Event+updated+successfully");
+            response.sendRedirect(base + "?success=Event+updated+successfully");
         } else {
-            response.sendRedirect(request.getContextPath()
-                + "/admin/events?error=Failed+to+update+event.+Please+try+again.");
+            response.sendRedirect(base + "?error=Failed+to+update+event.+Please+try+again.");
         }
     }
 
