@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet({"/admin/dashboard", "/volunteer/dashboard"})
 public class DashboardController extends HttpServlet {
@@ -78,7 +79,14 @@ public class DashboardController extends HttpServlet {
             request.setAttribute("hoursServed",    volunteerDao.getTotalHoursServed(userId));
             request.setAttribute("badgesEarned",   volunteerDao.countBadgesEarned(userId));
             request.setAttribute("rewardPoints",   volunteerDao.getRewardPoints(userId));
-            request.setAttribute("notifications",  volDao.getStatusNotifications(userId));
+            List<com.VMS.model.VolunteerNotification> notifs = volDao.getStatusNotifications(userId);
+            int notifTotal = notifs.size();
+            Integer lastSeen = (Integer) session.getAttribute("notifLastSeenCount");
+            int unreadCount  = (lastSeen == null) ? notifTotal : Math.max(0, notifTotal - lastSeen);
+
+            request.setAttribute("notifications",  notifs);
+            request.setAttribute("notifTotal",     notifTotal);
+            request.setAttribute("unreadCount",    unreadCount);
 
             request.getRequestDispatcher("/WEB-INF/pages/volunteer/dashboard.jsp")
                    .forward(request, response);
