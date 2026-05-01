@@ -56,17 +56,10 @@
     </a>
     <div class="sidebar-section-label">Events</div>
     <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item">
-        <i class="fas fa-calendar-alt"></i> All Events
+        <i class="fas fa-calendar-alt"></i> Browse Events
     </a>
-    <div class="sidebar-section-label">My Activities</div>
-    <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item">
+    <a href="${pageContext.request.contextPath}/volunteer/my-events" class="nav-item">
         <i class="fas fa-heart"></i> My Events
-    </a>
-    <a href="${pageContext.request.contextPath}/volunteer/assignments" class="nav-item">
-        <i class="fas fa-tasks"></i> My Assignments
-    </a>
-    <a href="${pageContext.request.contextPath}/volunteer/history" class="nav-item">
-        <i class="fas fa-history"></i> Activity History
     </a>
     <div class="sidebar-section-label">Account</div>
     <a href="${pageContext.request.contextPath}/volunteer/profile" class="nav-item">
@@ -244,11 +237,11 @@
                             <i class="fas fa-search"></i>
                             <span>Find Events</span>
                         </a>
-                        <a href="${pageContext.request.contextPath}/volunteer/assignments" class="qa-btn blue-qa">
-                            <i class="fas fa-tasks"></i>
-                            <span>My Tasks</span>
+                        <a href="${pageContext.request.contextPath}/volunteer/my-events" class="qa-btn blue-qa">
+                            <i class="fas fa-heart"></i>
+                            <span>My Events</span>
                         </a>
-                        <a href="${pageContext.request.contextPath}/volunteer/history" class="qa-btn purple-qa">
+                        <a href="${pageContext.request.contextPath}/volunteer/my-events?tab=completed" class="qa-btn purple-qa">
                             <i class="fas fa-history"></i>
                             <span>View History</span>
                         </a>
@@ -315,7 +308,7 @@
         <div class="panel activity-panel">
             <div class="panel-header">
                 <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                <a href="${pageContext.request.contextPath}/volunteer/history">View all &rarr;</a>
+                <a href="${pageContext.request.contextPath}/volunteer/my-events?tab=completed">View all &rarr;</a>
             </div>
             <% if (totalAttended == 0) { %>
             <div class="empty-panel">
@@ -331,7 +324,7 @@
                 <div class="empty-panel">
                     <i class="fas fa-check-circle"></i>
                     <p>You have attended <%= totalAttended %> event(s).</p>
-                    <a href="${pageContext.request.contextPath}/volunteer/history">View Full History</a>
+                    <a href="${pageContext.request.contextPath}/volunteer/my-events?tab=completed">View Full History</a>
                 </div>
             </div>
             <% } %>

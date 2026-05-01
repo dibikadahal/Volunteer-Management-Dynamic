@@ -36,15 +36,12 @@
     <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item">
         <i class="fas fa-th-large"></i> Dashboard
     </a>
-    <div class="sidebar-section-label">My Activities</div>
-    <a href="${pageContext.request.contextPath}/volunteer/events" class="nav-item">
-        <i class="fas fa-calendar-alt"></i> My Events
+    <div class="sidebar-section-label">Events</div>
+    <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item">
+        <i class="fas fa-calendar-alt"></i> Browse Events
     </a>
-    <a href="${pageContext.request.contextPath}/volunteer/assignments" class="nav-item">
-        <i class="fas fa-tasks"></i> My Assignments
-    </a>
-    <a href="${pageContext.request.contextPath}/volunteer/history" class="nav-item">
-        <i class="fas fa-history"></i> Activity History
+    <a href="${pageContext.request.contextPath}/volunteer/my-events" class="nav-item">
+        <i class="fas fa-heart"></i> My Events
     </a>
     <div class="sidebar-section-label">Account</div>
     <a href="${pageContext.request.contextPath}/volunteer/profile" class="nav-item active">
