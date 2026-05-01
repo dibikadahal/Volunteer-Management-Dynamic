@@ -56,11 +56,15 @@ public class DashboardController extends HttpServlet {
             request.setAttribute("openEvents",        eventDao.countOpenEvents());
             request.setAttribute("totalEvents",       eventDao.countTotalEvents());
 
-            // ── Pending registration requests ──
-            request.setAttribute("pendingVolunteers", adminDao.getPendingVolunteers());
+            // ── Pending account registration requests ──
+            request.setAttribute("pendingVolunteers",    adminDao.getPendingVolunteers());
 
-            // ── Recent approved volunteers (for the bottom panel) ──
-            request.setAttribute("recentVolunteers",  adminDao.getRecentApprovedVolunteers(5));
+            // ── Pending event join requests ──
+            request.setAttribute("pendingEventRequests", adminDao.getPendingEventRequests());
+            request.setAttribute("pendingEventCount",    adminDao.countPendingEventRequests());
+
+            // ── Recent approved volunteers ──
+            request.setAttribute("recentVolunteers",     adminDao.getRecentApprovedVolunteers(5));
 
             request.getRequestDispatcher("/WEB-INF/pages/admin/dashboard.jsp")
                    .forward(request, response);
