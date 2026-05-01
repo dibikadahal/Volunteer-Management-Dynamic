@@ -300,7 +300,7 @@
                     <div class="ab-contact-icon ic-blue"><i class="fas fa-envelope"></i></div>
                     <div>
                         <div class="ab-contact-label">Email</div>
-                        <div class="ab-contact-val"><a href="mailto:dahalgtm23@gmail.com">dahalgtm23@gmail.com</a></div>
+                        <div class="ab-contact-val"><a href="mailto:dibikadahal@gmail.com">dibikadahal@gmail.com</a></div>
                     </div>
                 </div>
                 <div class="ab-contact-item">
@@ -321,12 +321,26 @@
 
             <!-- Contact form -->
             <div>
-                <div id="contactSuccess" class="ab-form-success">
-                    <i class="fas fa-check-circle" style="font-size:18px; display:block; margin-bottom:8px;"></i>
-                    Thank you! Your message has been sent. We'll get back to you within 24 hours.
+                <% if ("true".equals(request.getParameter("contactSuccess"))) { %>
+                <div style="background:rgba(56,201,176,.1); border:1px solid rgba(56,201,176,.25);
+                            color:#38c9b0; padding:16px 20px; border-radius:12px;
+                            font-size:14px; margin-bottom:16px; text-align:center;">
+                    <i class="fas fa-check-circle" style="font-size:20px; display:block; margin-bottom:8px;"></i>
+                    <strong>Message sent!</strong><br>
+                    Thank you for reaching out. We'll reply to your email within 24 hours.
                 </div>
-                <form class="ab-form" id="contactForm" onsubmit="handleContact(event)">
-                    <input type="text"  name="name"    placeholder="Your full name"    required>
+                <% } %>
+                <% if (request.getParameter("contactError") != null) { %>
+                <div style="background:rgba(224,92,151,.1); border:1px solid rgba(224,92,151,.25);
+                            color:#e05c97; padding:14px 18px; border-radius:12px;
+                            font-size:13px; margin-bottom:16px;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= request.getParameter("contactError").replace("+"," ") %>
+                </div>
+                <% } %>
+
+                <form class="ab-form" action="<%= ctx %>/contact" method="POST">
+                    <input type="text"  name="name"    placeholder="Your full name"     required>
                     <input type="email" name="email"   placeholder="Your email address" required>
                     <input type="text"  name="subject" placeholder="Subject"            required>
                     <textarea           name="message" placeholder="Your message..."    required></textarea>
@@ -358,25 +372,22 @@
 </footer>
 
 <script>
-    function handleContact(e) {
-        e.preventDefault();
-        // In production, POST this to a backend endpoint.
-        // For now, show success message.
-        document.getElementById('contactForm').style.display    = 'none';
-        document.getElementById('contactSuccess').style.display = 'block';
-    }
-
-    document.addEventListener('keydown', function(k) {
-        if (k.key === 'Escape') document.querySelectorAll('[id$="Modal"]').forEach(function(m){ m.classList.remove('active'); });
-    });
-
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(function(a) {
         a.addEventListener('click', function(e) {
             var t = document.querySelector(this.getAttribute('href'));
-            if (t) { e.preventDefault(); t.scrollIntoView({ behavior:'smooth' }); }
+            if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
         });
     });
+
+    // Auto-scroll to contact section if success/error param present
+    (function() {
+        var url = new URL(window.location.href);
+        if (url.searchParams.has('contactSuccess') || url.searchParams.has('contactError')) {
+            var el = document.getElementById('contact');
+            if (el) setTimeout(function() { el.scrollIntoView({ behavior: 'smooth' }); }, 200);
+        }
+    })();
 </script>
 </body>
 </html>
