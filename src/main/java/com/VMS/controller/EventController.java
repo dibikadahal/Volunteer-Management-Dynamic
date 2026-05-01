@@ -179,7 +179,7 @@ public class EventController extends HttpServlet {
         e.setTitle(    getParam(req, "title"));
         e.setDescription(getParam(req, "description"));
         e.setMaxLimit( getParam(req, "maxLimit"));
-        e.setStatus(   getParam(req, "status").isEmpty() ? "opened" : getParam(req, "status"));
+        e.setStatus("opened"); // status is now derived from dates; this is a DB placeholder only
         e.setLocation( getParam(req, "location"));
 
         Timestamp starts = parseDateTime(getParam(req, "startsAt"));
