@@ -126,6 +126,59 @@
             font-size:10px; font-weight:700; border-radius:20px;
             padding:2px 7px; margin-left:6px; vertical-align:middle;
         }
+
+        /* ── Notification dropdown ── */
+        .notif-wrapper  { position:relative; }
+        .notif-badge    {
+            position:absolute; top:-5px; right:-5px;
+            background:#e05c97; color:#fff; font-size:9px; font-weight:700;
+            border-radius:10px; padding:2px 5px; min-width:16px; text-align:center;
+            border:2px solid var(--bg-primary); line-height:1.4; pointer-events:none;
+        }
+        .notif-dropdown {
+            display:none; position:absolute; top:calc(100% + 12px); right:0;
+            width:360px; background:var(--bg-card); border:1px solid var(--border);
+            border-radius:var(--radius); z-index:600;
+            box-shadow:0 8px 32px rgba(0,0,0,.4);
+        }
+        .notif-dropdown.open { display:block; animation:fadeUp .18s ease; }
+        .notif-head     {
+            padding:14px 18px; border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .notif-head-title { font-size:13px; font-weight:700; color:var(--text-primary); }
+        .notif-head-sub   { font-size:11px; color:var(--text-muted); }
+        .notif-section-label {
+            padding:8px 18px 4px;
+            font-size:10px; text-transform:uppercase; letter-spacing:.8px;
+            color:var(--text-muted); font-weight:700;
+            background:rgba(255,255,255,.02);
+        }
+        .notif-list     { max-height:380px; overflow-y:auto; }
+        .notif-item     {
+            padding:12px 18px; border-bottom:1px solid var(--border);
+            display:flex; align-items:flex-start; gap:12px; transition:background .15s;
+        }
+        .notif-item:last-child  { border-bottom:none; }
+        .notif-item:hover       { background:rgba(255,255,255,.03); }
+        .notif-icon-wrap {
+            width:30px; height:30px; border-radius:50%; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center; font-size:12px;
+        }
+        .ni-reg   { background:rgba(224,92,151,.1);  color:#e05c97; }
+        .ni-event { background:rgba(56,201,176,.1);  color:#38c9b0; }
+        .notif-body { flex:1; }
+        .notif-msg  { font-size:12px; color:var(--text-primary); line-height:1.5; }
+        .notif-time { font-size:11px; color:var(--text-muted); margin-top:3px; }
+        .notif-empty {
+            padding:24px 18px; text-align:center;
+            color:var(--text-muted); font-size:13px;
+        }
+        .notif-empty i { font-size:22px; display:block; margin-bottom:8px; opacity:.3; }
+        .notif-foot {
+            padding:10px 18px; border-top:1px solid var(--border); text-align:center;
+        }
+        .notif-foot a { font-size:12px; color:#4f8ef7; text-decoration:none; font-weight:600; }
     </style>
 </head>
 <body>
@@ -174,9 +227,53 @@
             <p>Manage your volunteer operations</p>
         </div>
         <div class="topbar-right">
-            <div class="topbar-icon-btn" style="position:relative;">
-                <i class="fas fa-bell"></i>
-                <% if (pendingCount > 0) { %><span class="notif-dot"></span><% } %>
+            <% int totalNotifCount = pendingCount + pendingEventCount; %>
+            <div class="notif-wrapper">
+                <div class="topbar-icon-btn" id="notifBtn" onclick="toggleNotif(event)"
+                     style="cursor:pointer; position:relative;">
+                    <i class="fas fa-bell"></i>
+                    <% if (totalNotifCount > 0) { %>
+                    <span class="notif-badge"><%= totalNotifCount %></span>
+                    <% } %>
+                </div>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-head">
+                        <span class="notif-head-title"><i class="fas fa-bell" style="color:#f5a623;margin-right:6px;font-size:12px;"></i>Notifications</span>
+                        <span class="notif-head-sub"><%= totalNotifCount %> pending</span>
+                    </div>
+                    <div class="notif-list">
+                        <%-- Pending volunteer registrations --%>
+                        <% if (pendingVolunteers != null && !pendingVolunteers.isEmpty()) { %>
+                        <div class="notif-section-label"><i class="fas fa-user-plus" style="font-size:9px;margin-right:4px;"></i>New Registrations</div>
+                        <% int pi = 0; for (User pv : pendingVolunteers) { if (++pi > 5) break; %>
+                        <div class="notif-item">
+                            <div class="notif-icon-wrap ni-reg"><i class="fas fa-user-clock"></i></div>
+                            <div class="notif-body">
+                                <div class="notif-msg"><strong><%= pv.getFullName() %></strong> wants to join as a volunteer</div>
+                                <div class="notif-time"><i class="fas fa-clock" style="font-size:9px;"></i> <%= pv.getCreatedAt() != null ? sdf.format(pv.getCreatedAt()) : "" %></div>
+                            </div>
+                        </div>
+                        <% } } %>
+                        <%-- Pending event requests --%>
+                        <% if (!pendingEventRequests.isEmpty()) { %>
+                        <div class="notif-section-label"><i class="fas fa-calendar-plus" style="font-size:9px;margin-right:4px;"></i>Event Requests</div>
+                        <% int ei2 = 0; for (java.util.Map<String,Object> er : pendingEventRequests) { if (++ei2 > 5) break; %>
+                        <div class="notif-item">
+                            <div class="notif-icon-wrap ni-event"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="notif-body">
+                                <div class="notif-msg"><strong><%= er.get("volunteerName") %></strong> requested to join <strong><%= er.get("eventTitle") %></strong></div>
+                                <div class="notif-time"><i class="fas fa-clock" style="font-size:9px;"></i> <%= er.get("requestedOn") %></div>
+                            </div>
+                        </div>
+                        <% } } %>
+                        <% if (totalNotifCount == 0) { %>
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i>All caught up — no pending items!</div>
+                        <% } %>
+                    </div>
+                    <div class="notif-foot">
+                        <a href="${pageContext.request.contextPath}/admin/assignments">Go to Assignments &rarr;</a>
+                    </div>
+                </div>
             </div>
             <a href="${pageContext.request.contextPath}/admin/profile" style="text-decoration:none;">
                 <div class="admin-avatar"><%= initials %></div>
@@ -512,7 +609,19 @@
     }
 
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Escape') { closeModal(); document.getElementById('notifDropdown').classList.remove('open'); }
+    });
+
+    // ── Notification dropdown ──
+    function toggleNotif(e) {
+        e.stopPropagation();
+        document.getElementById('notifDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        var dd = document.getElementById('notifDropdown');
+        if (dd && !document.getElementById('notifBtn').contains(e.target)) {
+            dd.classList.remove('open');
+        }
     });
 </script>
 
