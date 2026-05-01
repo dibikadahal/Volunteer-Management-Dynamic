@@ -140,7 +140,8 @@ public class AuthFilter implements Filter {
             || path.equals("/logout")
             || path.equals("/forgot-password")
             || path.equals("/reset-password")
-            || path.equals("/home");
+            || path.equals("/home")
+            || path.equals("/about");
     }
 
     /**
