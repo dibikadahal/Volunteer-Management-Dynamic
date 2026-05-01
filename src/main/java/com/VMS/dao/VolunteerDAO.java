@@ -1,6 +1,7 @@
 package com.VMS.dao;
 
 import com.VMS.config.DBConnection;
+import com.VMS.model.VolunteerAssignmentEntry;
 import com.VMS.model.VolunteerNotification;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -123,6 +124,46 @@ public class VolunteerDAO {
         return list;
     }
 
+    /** All pending (awaiting admin decision) event requests for a volunteer. */
+    public List<VolunteerAssignmentEntry> getPendingRequestsForVolunteer(String userId) {
+        List<VolunteerAssignmentEntry> list = new ArrayList<>();
+        String sql =
+            "SELECT e.id AS eventId, e.title, e.location, e.startsAt, e.endsAt, " +
+            "       e.status AS eventStatus, v.joinedAt " +
+            "FROM `volunteer` v JOIN `event` e ON v.eventId = e.id " +
+            "WHERE v.userId=? AND v.status='pending' ORDER BY v.joinedAt DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, userId);
+            ResultSet rs = ps.executeQuery();
+            SimpleDateFormat dtFmt   = new SimpleDateFormat("MMM dd, yyyy HH:mm");
+            SimpleDateFormat dateFmt = new SimpleDateFormat("MMM dd, yyyy");
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            while (rs.next()) {
+                VolunteerAssignmentEntry e = new VolunteerAssignmentEntry();
+                e.setEventId    (nvl(rs.getString("eventId")));
+                e.setTitle      (nvl(rs.getString("title")));
+                e.setLocation   (nvl(rs.getString("location")));
+                e.setEventStatus(nvl(rs.getString("eventStatus")));
+                Timestamp startsAt = rs.getTimestamp("startsAt");
+                Timestamp endsAt   = rs.getTimestamp("endsAt");
+                Timestamp joinedAt = rs.getTimestamp("joinedAt");
+                e.setStartsAt(startsAt != null ? dtFmt.format(startsAt)   : "");
+                e.setEndsAt  (endsAt   != null ? dtFmt.format(endsAt)     : "");
+                e.setJoinedAt(joinedAt != null ? dateFmt.format(joinedAt) : "");
+                e.setMarkedAt("");
+                e.setAttended(false);
+                e.setHasAssignment(false);
+                e.setPointsEarned(0);
+                e.setPast(endsAt != null && endsAt.before(now));
+                list.add(e);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
     /**
      * Update volunteer status (used by admin)
      * status: "accepted" or "declined"
@@ -140,4 +181,6 @@ public class VolunteerDAO {
         }
         return false;
     }
+
+    private static String nvl(String s) { return s != null ? s : ""; }
 }
