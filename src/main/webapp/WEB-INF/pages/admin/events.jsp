@@ -113,8 +113,9 @@
             font-size: 11px; font-weight: 700; letter-spacing: .4px;
             white-space: nowrap;
         }
-        .badge-opened { background: rgba(56,201,176,.15); color: #38c9b0; border: 1px solid rgba(56,201,176,.3); }
-        .badge-closed { background: rgba(224,92,151,.12); color: #e05c97; border: 1px solid rgba(224,92,151,.25); }
+        .badge-upcoming  { background: rgba(79,142,247,.12);  color: #4f8ef7; border: 1px solid rgba(79,142,247,.3); }
+        .badge-ongoing   { background: rgba(56,201,176,.12);  color: #38c9b0; border: 1px solid rgba(56,201,176,.3); }
+        .badge-finished  { background: rgba(100,100,120,.12); color: var(--text-secondary); border: 1px solid var(--border); }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
         /* ══ CAPACITY BAR ══ */
@@ -384,8 +385,8 @@
             <div class="stat-card teal">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= openEvents %></div>
-                <div class="stat-label">Open Events</div>
-                <div class="stat-change up"><i class="fas fa-door-open"></i> Accepting volunteers</div>
+                <div class="stat-label">Active Events</div>
+                <div class="stat-change up"><i class="fas fa-door-open"></i> Upcoming &amp; ongoing</div>
             </div>
 
             <div class="stat-card blue">
@@ -479,10 +480,11 @@
                             int rowNum = 0;
                             for (Event ev : events) {
                                 rowNum++;
-                                String statusClass = "opened".equals(ev.getStatus()) ? "badge-opened" : "badge-closed";
-                                String statusIcon  = "opened".equals(ev.getStatus()) ? "fa-circle" : "fa-stop-circle";
-                                String loc = ev.getLocation() != null ? ev.getLocation() : "";
-                                String img = ev.getImage()    != null ? ev.getImage()    : "";
+                                String derived    = ev.getDerivedStatus(); // upcoming | ongoing | finished
+                                String statusClass = "badge-" + derived;
+                                String statusLabel = derived.substring(0,1).toUpperCase() + derived.substring(1);
+                                String loc  = ev.getLocation()    != null ? ev.getLocation()    : "";
+                                String img  = ev.getImage()       != null ? ev.getImage()       : "";
                                 String desc = ev.getDescription() != null ? ev.getDescription() : "";
 
                                 // Cap fill percentage
@@ -521,11 +523,11 @@
                             </div>
                         </td>
 
-                        <!-- Status -->
+                        <!-- Status (auto-derived from dates) -->
                         <td>
                             <span class="badge <%= statusClass %>">
                                 <span class="badge-dot"></span>
-                                <%= "opened".equals(ev.getStatus()) ? "Open" : "Closed" %>
+                                <%= statusLabel %>
                             </span>
                         </td>
 
@@ -671,10 +673,11 @@
 
                     <div class="f-group">
                         <label>Status</label>
-                        <select name="status">
-                            <option value="opened">Open — Accepting Volunteers</option>
-                            <option value="closed">Closed — Not Accepting</option>
-                        </select>
+                        <div style="padding:9px 12px; border-radius:9px; border:1px solid var(--border);
+                                    background:rgba(255,255,255,.03); font-size:13px; color:var(--text-muted);">
+                            <i class="fas fa-magic" style="font-size:11px; color:#7c5cbf;"></i>
+                            Auto — derived from start &amp; end dates
+                        </div>
                     </div>
 
                     <div class="f-group form-full">
@@ -745,10 +748,11 @@
 
                     <div class="f-group">
                         <label>Status</label>
-                        <select name="status" id="editStatus">
-                            <option value="opened">Open — Accepting Volunteers</option>
-                            <option value="closed">Closed — Not Accepting</option>
-                        </select>
+                        <div id="editStatusDisplay" style="padding:9px 12px; border-radius:9px; border:1px solid var(--border);
+                                    background:rgba(255,255,255,.03); font-size:13px; color:var(--text-muted);">
+                            <i class="fas fa-magic" style="font-size:11px; color:#7c5cbf;"></i>
+                            Auto — derived from start &amp; end dates
+                        </div>
                     </div>
 
                     <div class="f-group form-full">
@@ -832,7 +836,7 @@ const EVENTS = [
     startsInput: '<%= esc(ev.getStartsAtInput()) %>',
     endsInput:   '<%= esc(ev.getEndsAtInput()) %>',
     maxLimit:    '<%= esc(ev.getMaxLimit() != null ? ev.getMaxLimit() : "") %>',
-    status:      '<%= esc(ev.getStatus()) %>',
+    status:      '<%= esc(ev.getDerivedStatus()) %>',
     location:    '<%= esc(loc) %>',
     image:       '<%= esc(img) %>',
     volCount:    <%= ev.getVolunteerCount() %>,
@@ -879,11 +883,12 @@ function openDetailModal(id) {
     document.getElementById('detailStarts').textContent = ev.startsAt;
     document.getElementById('detailEnds').textContent   = ev.endsAt;
     document.getElementById('detailCap').textContent    = ev.capDisplay;
-    document.getElementById('detailStatusText').textContent = ev.status === 'opened' ? 'Open' : 'Closed';
+    const statusLabel = ev.status.charAt(0).toUpperCase() + ev.status.slice(1);
+    document.getElementById('detailStatusText').textContent = statusLabel;
 
     const statusEl = document.getElementById('detailStatus');
-    statusEl.className = 'badge ' + (ev.status === 'opened' ? 'badge-opened' : 'badge-closed');
-    statusEl.innerHTML = '<span class="badge-dot"></span>' + (ev.status === 'opened' ? 'Open' : 'Closed');
+    statusEl.className = 'badge badge-' + ev.status;
+    statusEl.innerHTML = '<span class="badge-dot"></span>' + statusLabel;
 
     // Location + Map
     const locWrap = document.getElementById('detailLocWrap');
@@ -923,8 +928,8 @@ function openEditModal(id) {
     document.getElementById('editStartsAt').value    = ev.startsInput;
     document.getElementById('editEndsAt').value      = ev.endsInput;
     document.getElementById('editMaxLimit').value    = ev.maxLimit;
-    document.getElementById('editLocation').value   = ev.location;
-    document.getElementById('editStatus').value      = ev.status;
+    document.getElementById('editLocation').value    = ev.location;
+    // Status is auto-derived — no dropdown to set
 
     // Current image thumbnail + remove checkbox
     const curImgWrap     = document.getElementById('editCurrentImg');
