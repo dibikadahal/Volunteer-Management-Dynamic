@@ -71,7 +71,10 @@ public class AdminAssignmentController extends HttpServlet {
         String userId  = request.getParameter("userId");
         String eventId = request.getParameter("eventId");
 
-        String base = request.getContextPath() + "/admin/assignments?eventId=" + eventId;
+        String redirectTo = request.getParameter("redirectTo");
+        String base = "dashboard".equals(redirectTo)
+            ? request.getContextPath() + "/admin/dashboard"
+            : request.getContextPath() + "/admin/assignments?eventId=" + eventId;
 
         if (userId == null || eventId == null || action == null) {
             response.sendRedirect(base + "&error=Missing+parameters");
