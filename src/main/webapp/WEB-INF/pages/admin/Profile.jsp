@@ -21,7 +21,7 @@
     <title>My Profile – VolunteerHub</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/volunteer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
 </head>
 <body>
@@ -33,22 +33,22 @@
         <span>VolunteerHub</span>
     </div>
     <div class="sidebar-section-label">Main Menu</div>
-    <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item">
+    <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item">
         <i class="fas fa-th-large"></i> Dashboard
     </a>
-    <div class="sidebar-section-label">My Activities</div>
-    <a href="${pageContext.request.contextPath}/volunteer/events" class="nav-item">
-        <i class="fas fa-calendar-alt"></i> My Events
+    <div class="sidebar-section-label">Management</div>
+    <a href="${pageContext.request.contextPath}/admin/volunteers" class="nav-item">
+        <i class="fas fa-users"></i> Volunteer Management
     </a>
-    <a href="${pageContext.request.contextPath}/volunteer/assignments" class="nav-item">
-        <i class="fas fa-tasks"></i> My Assignments
+    <a href="${pageContext.request.contextPath}/admin/events" class="nav-item">
+        <i class="fas fa-calendar-alt"></i> Event Management
     </a>
-    <a href="${pageContext.request.contextPath}/volunteer/history" class="nav-item">
-        <i class="fas fa-history"></i> Activity History
+    <a href="${pageContext.request.contextPath}/admin/assignments" class="nav-item">
+        <i class="fas fa-link"></i> Assignments
     </a>
     <div class="sidebar-section-label">Account</div>
-    <a href="${pageContext.request.contextPath}/volunteer/profile" class="nav-item active">
-        <i class="fas fa-user-circle"></i> My Profile
+    <a href="${pageContext.request.contextPath}/admin/profile" class="nav-item active">
+        <i class="fas fa-user-circle"></i> Profile Management
     </a>
     <div class="sidebar-bottom">
         <a href="${pageContext.request.contextPath}/logout" class="nav-item logout-link">
@@ -71,14 +71,14 @@
                 <i class="fas fa-bell"></i>
                 <span class="notif-dot"></span>
             </div>
-            <div class="vol-avatar"><%= initials %></div>
+            <div class="admin-avatar"><%= initials %></div>
         </div>
     </div>
 
     <!-- Page Body -->
     <div class="page-body">
 
-        <form action="${pageContext.request.contextPath}/volunteer/profile"
+        <form action="${pageContext.request.contextPath}/admin/profile"
               method="POST" enctype="multipart/form-data" id="profileForm">
 
             <!-- ══ PROFILE CARD ══ -->

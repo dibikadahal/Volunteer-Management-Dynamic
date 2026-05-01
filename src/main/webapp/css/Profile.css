@@ -17,10 +17,7 @@
 
 /* ── Photo Section ── */
 .photo-section {
-    background: linear-gradient(135deg,
-        rgba(56,201,176,0.2) 0%,
-        rgba(79,142,247,0.15) 50%,
-        rgba(124,92,191,0.12) 100%);
+    background: var(--photo-bg);
     border-bottom: 1px solid var(--border);
     padding: 40px 24px 28px;
     display: flex;
@@ -43,7 +40,7 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid rgba(56,201,176,0.4);
+    border: 4px solid var(--avatar-border);
     display: block;
 }
 
@@ -51,7 +48,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+    background: var(--avatar-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -59,7 +56,7 @@
     font-size: 36px;
     font-weight: 700;
     color: #fff;
-    border: 4px solid rgba(56,201,176,0.4);
+    border: 4px solid var(--avatar-border);
 }
 
 /* Camera edit button */
@@ -70,7 +67,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+    background: var(--avatar-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -213,7 +210,7 @@
 .field-wrap input,
 .field-wrap textarea {
     width: 100%;
-    background: rgba(255,255,255,0.04);
+    background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 11px 14px 11px 40px;
@@ -237,16 +234,16 @@
 
 .field-wrap input:focus,
 .field-wrap textarea:focus {
-    border-color: var(--accent-teal);
-    box-shadow: 0 0 0 3px rgba(56,201,176,0.12);
-    background: rgba(255,255,255,0.06);
+    border-color: var(--focus-border);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    background: var(--input-bg-focus);
 }
 
 /* Readonly fields */
 .field-wrap.readonly input {
     color: var(--text-secondary);
     cursor: not-allowed;
-    background: rgba(255,255,255,0.02);
+    background: var(--input-bg-readonly);
 }
 
 .field-wrap.readonly input:focus {
@@ -274,7 +271,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(90deg, var(--accent-teal), var(--accent-blue));
+    background: var(--btn-gradient);
     color: #fff;
     border: none;
     border-radius: 10px;

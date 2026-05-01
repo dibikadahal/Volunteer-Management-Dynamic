@@ -10,26 +10,14 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.UUID;
 
-/**
- * ProfileController
- *
- * Routes:
- *   GET  /volunteer/profile  → show profile page (pre-filled)
- *   POST /volunteer/profile  → save profile changes
- *   GET  /admin/profile      → show profile page (pre-filled)
- *   POST /admin/profile      → save profile changes
- */
-@WebServlet({"/volunteer/profile", "/admin/profile"})
-@MultipartConfig(
-    maxFileSize    = 2 * 1024 * 1024,   // 2 MB per file
-    maxRequestSize = 5 * 1024 * 1024    // 5 MB total request
-)
+@WebServlet({"/admin/profile", "/volunteer/profile"})
+@MultipartConfig
 public class ProfileController extends HttpServlet {
 
     private final ProfileDAO profileDao = new ProfileDAO();
 
     // Allowed image types
-    private static final String[] ALLOWED_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"};
+    private static final String[] ALLOWED_TYPES = { "image/jpeg", "image/png", "image/gif", "image/webp" };
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -42,7 +30,7 @@ public class ProfileController extends HttpServlet {
         }
 
         String userId = (String) session.getAttribute("userId");
-        User   user   = profileDao.getUserById(userId);
+        User user = profileDao.getUserById(userId);
 
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -67,11 +55,11 @@ public class ProfileController extends HttpServlet {
 
         // ── Read text fields ──
         String firstName = getParam(request, "firstName");
-        String lastName  = getParam(request, "lastName");
-        String email     = getParam(request, "email");
-        String username  = getParam(request, "username");
-        String phone     = getParam(request, "phone");
-        String bio       = getParam(request, "bio");
+        String lastName = getParam(request, "lastName");
+        String email = getParam(request, "email");
+        String username = getParam(request, "username");
+        String phone = getParam(request, "phone");
+        String bio = getParam(request, "bio");
 
         // ── Validation ──
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty()) {
@@ -103,7 +91,6 @@ public class ProfileController extends HttpServlet {
         if (photoPart != null && photoPart.getSize() > 0) {
             String contentType = photoPart.getContentType();
 
-            // Validate file type
             if (!isAllowedType(contentType)) {
                 User user = profileDao.getUserById(userId);
                 request.setAttribute("user", user);
@@ -112,24 +99,23 @@ public class ProfileController extends HttpServlet {
                 return;
             }
 
-            // Save to a permanent directory outside the deploy folder so
-            // files survive Eclipse republishes.
-            String uploadDir = getServletContext().getRealPath("") 
-                    + File.separator + "uploads" 
+            String uploadDir = System.getProperty("user.home")
+                    + File.separator + "vms_uploads"
                     + File.separator + "profiles";
-            Files.createDirectories(Paths.get(uploadDir));
 
-            // Generate unique filename to avoid conflicts
+            File uploadFolder = new File(uploadDir);
+            if (!uploadFolder.exists()) {
+                uploadFolder.mkdirs();
+            }
+
             String extension = getExtension(contentType);
-            String fileName  = userId + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
-            String filePath  = uploadDir + File.separator + fileName;
+            String fileName = userId + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
+            String filePath = uploadDir + File.separator + fileName;
 
-            // Save file to disk
             try (InputStream input = photoPart.getInputStream()) {
                 Files.copy(input, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Save relative path to DB (used in <img src="...">)
             String dbPath = "uploads/profiles/" + fileName;
             profileDao.updateProfilePhoto(userId, dbPath);
         }
@@ -144,11 +130,11 @@ public class ProfileController extends HttpServlet {
         String role = (String) session.getAttribute("userRole");
         String base = "admin".equals(role) ? "/admin/profile" : "/volunteer/profile";
 
-     
         if (updated) {
             response.sendRedirect(request.getContextPath() + base + "?success=Profile+updated+successfully");
         } else {
-            response.sendRedirect(request.getContextPath() + base + "?error=Failed+to+update+profile.+Please+try+again.");
+            response.sendRedirect(
+                    request.getContextPath() + base + "?error=Failed+to+update+profile.+Please+try+again.");
         }
     }
 
@@ -157,9 +143,9 @@ public class ProfileController extends HttpServlet {
     private void forwardToProfile(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         String role = (String) req.getSession().getAttribute("userRole");
-        String jsp  = "admin".equals(role)
-            ? "/WEB-INF/pages/admin/profile.jsp"
-            : "/WEB-INF/pages/volunteer/profile.jsp";
+        String jsp = "admin".equals(role)
+                ? "/WEB-INF/pages/admin/profile.jsp"
+                : "/WEB-INF/pages/volunteer/profile.jsp";
         req.getRequestDispatcher(jsp).forward(req, res);
     }
 
@@ -169,19 +155,25 @@ public class ProfileController extends HttpServlet {
     }
 
     private boolean isAllowedType(String contentType) {
-        if (contentType == null) return false;
+        if (contentType == null)
+            return false;
         for (String t : ALLOWED_TYPES) {
-            if (t.equalsIgnoreCase(contentType)) return true;
+            if (t.equalsIgnoreCase(contentType))
+                return true;
         }
         return false;
     }
 
     private String getExtension(String contentType) {
         switch (contentType.toLowerCase()) {
-            case "image/png":  return ".png";
-            case "image/gif":  return ".gif";
-            case "image/webp": return ".webp";
-            default:           return ".jpg";
+            case "image/png":
+                return ".png";
+            case "image/gif":
+                return ".gif";
+            case "image/webp":
+                return ".webp";
+            default:
+                return ".jpg";
         }
     }
 }

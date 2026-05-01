@@ -4,6 +4,7 @@ import com.VMS.dao.EventDAO;
 import com.VMS.model.Event;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.*;
@@ -12,17 +13,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * EventController — Admin event management.
- *
- * Routes (registered in web.xml):
- *   GET  /admin/events                → list all events
- *   POST /admin/events?action=create  → create new event
- *   POST /admin/events?action=update  → update existing event
- *   POST /admin/events?action=delete  → delete event
- *
- * Multipart-config is declared in web.xml so file uploads work.
- */
+@WebServlet("/admin/events")
 @MultipartConfig
 public class EventController extends HttpServlet {
 
