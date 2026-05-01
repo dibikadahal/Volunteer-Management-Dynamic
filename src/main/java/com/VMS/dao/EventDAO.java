@@ -247,8 +247,9 @@ public class EventDAO {
         return countWhere("1=1");
     }
 
+    /** Counts events that are currently ongoing or upcoming (not yet finished). */
     public int countOpenEvents() {
-        return countWhere("status = 'opened'");
+        return countWhere("endsAt >= NOW()");
     }
 
     /** Events whose start date falls in the current calendar month. */
