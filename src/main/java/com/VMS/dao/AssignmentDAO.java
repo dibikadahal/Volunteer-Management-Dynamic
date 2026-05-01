@@ -285,6 +285,13 @@ public class AssignmentDAO {
         return queryCount("SELECT COALESCE(SUM(rewardPoints),0) FROM `user` WHERE role='volunteer'");
     }
 
+    /** Total community hours served across ALL volunteers (sum of attended event durations). */
+    public int getTotalHoursServedAll() {
+        String sql = "SELECT COALESCE(SUM(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt)), 0) " +
+                     "FROM `assignment` a JOIN `event` e ON a.eventId = e.id WHERE a.attended = TRUE";
+        return queryCount(sql);
+    }
+
     // ═══════════════════════════════════════════════
     // PRIVATE HELPERS
     // ═══════════════════════════════════════════════
