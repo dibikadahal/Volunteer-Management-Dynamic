@@ -10,7 +10,7 @@ public class Event {
     private Timestamp startsAt;
     private Timestamp endsAt;
     private String    maxLimit;
-    private String    status;      // opened | closed
+    private String    status;      // DB legacy value — use getDerivedStatus() for display
     private String    location;
     private String    image;
     private Timestamp createdAt;
@@ -84,6 +84,19 @@ public class Event {
     public String getEndsAtDisplay() {
         if (endsAt == null) return "—";
         return new SimpleDateFormat("MMM dd, yyyy HH:mm").format(endsAt);
+    }
+
+    /**
+     * Derives event status from its dates — fully automatic, no manual input needed.
+     * upcoming : starts in the future
+     * ongoing  : started but not yet ended
+     * finished : end date has passed
+     */
+    public String getDerivedStatus() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (endsAt != null && endsAt.before(now))    return "finished";
+        if (startsAt != null && startsAt.after(now)) return "upcoming";
+        return "ongoing";
     }
 
     /** "25 / 100" or "25 / Unlimited" for display */
