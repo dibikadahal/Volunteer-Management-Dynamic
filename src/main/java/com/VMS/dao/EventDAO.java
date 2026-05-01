@@ -213,6 +213,19 @@ public class EventDAO {
     // DELETE
     // ═══════════════════════════════════════════════
 
+    /** Set the image column to NULL for an event. */
+    public boolean clearEventImage(String id) {
+        String sql = "UPDATE `event` SET image = NULL WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     /** Delete an event (cascade deletes volunteer registrations via FK). */
     public boolean deleteEvent(String id) {
         String sql = "DELETE FROM `event` WHERE id = ?";
