@@ -16,11 +16,21 @@
         try { int m = Integer.parseInt(max.trim()); return m > 0 ? Math.min(100, count * 100 / m) : 0; }
         catch (NumberFormatException e) { return 0; }
     }
+    private static String fmtNum(int n) {
+        if (n >= 1000) return (n / 1000) + "K+";
+        return String.valueOf(n);
+    }
 %>
 <%
     @SuppressWarnings("unchecked")
     List<Event> featuredEvents = (List<Event>) request.getAttribute("featuredEvents");
     if (featuredEvents == null) featuredEvents = new java.util.ArrayList<>();
+
+    int activeVolunteers = request.getAttribute("activeVolunteers") != null ? (Integer) request.getAttribute("activeVolunteers") : 0;
+    int totalEvents      = request.getAttribute("totalEvents")      != null ? (Integer) request.getAttribute("totalEvents")      : 0;
+    int hoursServed      = request.getAttribute("hoursServed")      != null ? (Integer) request.getAttribute("hoursServed")      : 0;
+    int totalAttended    = request.getAttribute("totalAttended")    != null ? (Integer) request.getAttribute("totalAttended")    : 0;
+
     String ctx = request.getContextPath();
 %>
 <!DOCTYPE html>
@@ -43,6 +53,15 @@
         </div>
         <span class="lp-nav__name">Volunteer<span>Hub</span></span>
     </a>
+
+    <div class="lp-nav__links" style="display:flex; align-items:center; gap:24px;">
+        <a href="#events" style="color:rgba(255,255,255,.75); font-size:14px; font-weight:500; text-decoration:none; transition:color .2s;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.75)'">Events</a>
+        <a href="<%= ctx %>/about" style="color:rgba(255,255,255,.75); font-size:14px; font-weight:500; text-decoration:none; transition:color .2s;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.75)'">About</a>
+        <a href="<%= ctx %>/about#contact" style="color:rgba(255,255,255,.75); font-size:14px; font-weight:500; text-decoration:none; transition:color .2s;"
+           onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.75)'">Contact</a>
+    </div>
 
     <div class="lp-nav__actions">
         <a href="<%= ctx %>/login"    class="lp-btn lp-btn--ghost">Log In</a>
@@ -77,25 +96,26 @@
         </a>
     </div>
 
+    <!-- ── Real-time stats from DB ── -->
     <div class="lp-hero__stats">
         <div class="lp-stat-pill">
-            <span class="lp-stat-pill__value">2.5K+</span>
+            <span class="lp-stat-pill__value"><%= activeVolunteers > 0 ? fmtNum(activeVolunteers) : "—" %></span>
             <span class="lp-stat-pill__label">Active Volunteers</span>
         </div>
         <div class="lp-stat-divider"></div>
         <div class="lp-stat-pill">
-            <span class="lp-stat-pill__value">500+</span>
+            <span class="lp-stat-pill__value"><%= totalEvents > 0 ? fmtNum(totalEvents) : "—" %></span>
             <span class="lp-stat-pill__label">Events Hosted</span>
         </div>
         <div class="lp-stat-divider"></div>
         <div class="lp-stat-pill">
-            <span class="lp-stat-pill__value">50K+</span>
-            <span class="lp-stat-pill__label">Lives Impacted</span>
+            <span class="lp-stat-pill__value"><%= hoursServed > 0 ? fmtNum(hoursServed) : "—" %></span>
+            <span class="lp-stat-pill__label">Hours Served</span>
         </div>
         <div class="lp-stat-divider"></div>
         <div class="lp-stat-pill">
-            <span class="lp-stat-pill__value">100+</span>
-            <span class="lp-stat-pill__label">Organizations</span>
+            <span class="lp-stat-pill__value"><%= totalAttended > 0 ? fmtNum(totalAttended) : "—" %></span>
+            <span class="lp-stat-pill__label">Spots Filled</span>
         </div>
     </div>
 
@@ -133,36 +153,33 @@
         <%
             } else {
                 for (Event ev : featuredEvents) {
-                    String imageUrl  = (ev.getImage() != null && !ev.getImage().isEmpty())
-                                       ? ctx + "/" + ev.getImage() : null;
-                    String maxLbl    = (ev.getMaxLimit() != null && !ev.getMaxLimit().trim().isEmpty())
-                                       ? ev.getMaxLimit() : "Unlimited";
-                    int    fillPct   = pct(ev.getVolunteerCount(), ev.getMaxLimit());
-                    String location  = (ev.getLocation() != null && !ev.getLocation().trim().isEmpty())
-                                       ? ev.getLocation() : "To be announced";
+                    String imageUrl = (ev.getImage() != null && !ev.getImage().isEmpty())
+                                      ? ctx + "/" + ev.getImage() : null;
+                    String maxLbl   = (ev.getMaxLimit() != null && !ev.getMaxLimit().trim().isEmpty())
+                                      ? ev.getMaxLimit() : "Unlimited";
+                    int    fillPct  = pct(ev.getVolunteerCount(), ev.getMaxLimit());
+                    String location = (ev.getLocation() != null && !ev.getLocation().trim().isEmpty())
+                                      ? ev.getLocation() : "To be announced";
+                    String derived  = ev.getDerivedStatus();
+                    String badgeCls = "ongoing".equals(derived) ? "lp-card__badge--ongoing" : "lp-card__badge--open";
+                    String badgeTxt = "ongoing".equals(derived) ? "Ongoing" : "Upcoming";
         %>
         <div class="lp-card">
-            <!-- image -->
             <div class="lp-card__img-wrap">
                 <% if (imageUrl != null) { %>
-                    <img class="lp-card__img"
-                         src="<%= h(imageUrl) %>"
-                         alt="<%= h(ev.getTitle()) %>"
+                    <img class="lp-card__img" src="<%= h(imageUrl) %>" alt="<%= h(ev.getTitle()) %>"
                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                     <div class="lp-card__img-placeholder" style="display:none;">🤝</div>
                 <% } else { %>
                     <div class="lp-card__img-placeholder">🤝</div>
                 <% } %>
-                <span class="lp-card__badge lp-card__badge--open">
-                    <i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Open
+                <span class="lp-card__badge <%= badgeCls %>">
+                    <i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> <%= badgeTxt %>
                 </span>
             </div>
-
-            <!-- body -->
             <div class="lp-card__body">
                 <div class="lp-card__title"><%= h(ev.getTitle()) %></div>
                 <div class="lp-card__desc"><%= trunc(ev.getDescription(), 140) %></div>
-
                 <div class="lp-card__meta">
                     <div class="lp-card__meta-row">
                         <i class="fa-regular fa-calendar"></i>
@@ -173,13 +190,9 @@
                         <span><%= h(location) %></span>
                     </div>
                 </div>
-
                 <div class="lp-card__vol-bar">
                     <div class="lp-card__vol-label">
-                        <span>
-                            <i class="fa-solid fa-users" style="color:#7c3aed;font-size:0.7rem;"></i>
-                            Volunteers
-                        </span>
+                        <span><i class="fa-solid fa-users" style="color:#7c3aed;font-size:0.7rem;"></i> Volunteers</span>
                         <span><%= ev.getVolunteerCount() %> / <%= h(maxLbl) %></span>
                     </div>
                     <div class="lp-card__vol-track">
@@ -187,17 +200,13 @@
                     </div>
                 </div>
             </div>
-
-            <!-- join button -->
             <div class="lp-card__footer">
                 <button class="lp-card__join-btn" onclick="openLoginPrompt('<%= h(ev.getTitle()) %>')">
-                    <i class="fa-solid fa-hand-holding-heart"></i>
-                    Join &amp; Volunteer
+                    <i class="fa-solid fa-hand-holding-heart"></i> Join &amp; Volunteer
                 </button>
             </div>
         </div>
-        <%
-                }
+        <%      }
             }
         %>
     </div>
@@ -226,10 +235,10 @@
             <i class="fa-solid fa-hands-helping" style="color:#7c3aed;"></i>
             VolunteerHub
         </a>
-        <p class="lp-footer__copy">
-            &copy; 2025 VolunteerHub. Built with purpose.
-        </p>
+        <p class="lp-footer__copy">&copy; 2026 VolunteerHub. Built with purpose.</p>
         <div class="lp-footer__links">
+            <a href="<%= ctx %>/about">About Us</a>
+            <a href="<%= ctx %>/about#contact">Contact</a>
             <a href="<%= ctx %>/login">Log In</a>
             <a href="<%= ctx %>/register">Sign Up</a>
         </div>
@@ -242,14 +251,11 @@
         <button class="lp-modal__close" onclick="closeLoginPrompt()" title="Close">
             <i class="fa-solid fa-xmark"></i>
         </button>
-
         <div class="lp-modal__icon">🤝</div>
-
         <h3 class="lp-modal__title">Want to join?</h3>
         <p class="lp-modal__sub" id="modalEventName">
             Create a free account or log in to sign up as a volunteer for this event.
         </p>
-
         <div class="lp-modal__actions">
             <a href="<%= ctx %>/register" class="lp-btn lp-btn--primary">
                 <i class="fa-solid fa-user-plus"></i> Sign Up Free
@@ -269,21 +275,23 @@
         }
         document.getElementById('loginModal').classList.add('active');
     }
-
     function closeLoginPrompt() {
         document.getElementById('loginModal').classList.remove('active');
     }
-
     function handleOverlayClick(e) {
-        if (e.target === document.getElementById('loginModal')) {
-            closeLoginPrompt();
-        }
+        if (e.target === document.getElementById('loginModal')) closeLoginPrompt();
     }
-
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeLoginPrompt();
     });
-</script>
 
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+</script>
 </body>
 </html>
