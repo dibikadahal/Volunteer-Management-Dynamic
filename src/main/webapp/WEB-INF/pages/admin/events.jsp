@@ -757,12 +757,34 @@
                     </div>
 
                     <div class="f-group form-full">
-                        <label>Replace Event Image (leave blank to keep existing)</label>
-                        <input type="file" name="eventImage" accept="image/jpeg,image/png,image/gif,image/webp"
-                               onchange="previewImg(this,'editPreview')">
+                        <label>Event Image</label>
+
+                        <!-- Current image (shown only when event has one) -->
                         <div class="current-img-wrap" id="editCurrentImg" style="display:none;">
-                            <img src="" alt="current" id="editCurrentImgEl">
-                            <p>Current image — upload a new one to replace it</p>
+                            <img src="" alt="current" id="editCurrentImgEl"
+                                 style="transition:opacity .25s;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap;">
+                                <p style="margin:0; font-size:11px; color:var(--text-muted);">Current image</p>
+                                <label style="display:inline-flex; align-items:center; gap:6px;
+                                              font-size:11px; font-weight:600; color:#e05c97;
+                                              cursor:pointer; text-transform:none; letter-spacing:0;">
+                                    <input type="checkbox" name="removeImage" value="true"
+                                           id="removeImageCheck"
+                                           onchange="onRemoveImageToggle(this)"
+                                           style="width:auto; accent-color:#e05c97;">
+                                    Remove this image
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- File picker (disabled while "remove" is ticked) -->
+                        <div style="margin-top:10px;">
+                            <input type="file" name="eventImage" id="editImageInput"
+                                   accept="image/jpeg,image/png,image/gif,image/webp"
+                                   onchange="previewImg(this,'editPreview')">
+                            <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">
+                                JPG · PNG · GIF · WEBP — leave blank to keep existing
+                            </div>
                         </div>
                         <div class="img-preview-wrap" id="editPreview">
                             <img src="" alt="new preview">
@@ -904,17 +926,37 @@ function openEditModal(id) {
     document.getElementById('editLocation').value   = ev.location;
     document.getElementById('editStatus').value      = ev.status;
 
-    // Show current image thumbnail
-    const curImgWrap = document.getElementById('editCurrentImg');
+    // Current image thumbnail + remove checkbox
+    const curImgWrap     = document.getElementById('editCurrentImg');
+    const removeCheck    = document.getElementById('removeImageCheck');
+    const editImgInput   = document.getElementById('editImageInput');
+    removeCheck.checked  = false;
+    editImgInput.disabled = false;
     if (ev.image) {
         curImgWrap.style.display = '';
-        document.getElementById('editCurrentImgEl').src = CTX + '/' + ev.image;
+        document.getElementById('editCurrentImgEl').src   = CTX + '/' + ev.image;
+        document.getElementById('editCurrentImgEl').style.opacity = '1';
     } else {
         curImgWrap.style.display = 'none';
     }
 
     document.getElementById('editPreview').style.display = 'none';
     openModal('editModal');
+}
+
+// ── Remove-image checkbox toggle ──────────────────────────
+function onRemoveImageToggle(checkbox) {
+    const imgEl       = document.getElementById('editCurrentImgEl');
+    const fileInput   = document.getElementById('editImageInput');
+    if (checkbox.checked) {
+        imgEl.style.opacity   = '0.25';
+        fileInput.disabled    = true;
+        fileInput.value       = '';
+        document.getElementById('editPreview').style.display = 'none';
+    } else {
+        imgEl.style.opacity   = '1';
+        fileInput.disabled    = false;
+    }
 }
 
 // ── Delete Event ──────────────────────────────────────────
