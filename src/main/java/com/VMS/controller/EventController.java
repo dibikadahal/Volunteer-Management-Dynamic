@@ -121,11 +121,22 @@ public class EventController extends HttpServlet {
         }
         event.setId(id.trim());
 
-        // Handle image upload (if no new image uploaded, existing image is kept)
-        String imagePath = saveUploadedImage(request, "eventImage");
-        if (imagePath != null) event.setImage(imagePath);
+        String removeImage = request.getParameter("removeImage");
+        String imagePath   = saveUploadedImage(request, "eventImage");
+
+        if (imagePath != null) {
+            // New image uploaded — use it
+            event.setImage(imagePath);
+        }
+        // else: image column untouched by updateEvent (keeps existing)
 
         boolean ok = eventDao.updateEvent(event);
+
+        // If admin ticked "remove image" and no replacement was uploaded, clear it now
+        if (ok && "true".equals(removeImage) && imagePath == null) {
+            eventDao.clearEventImage(id.trim());
+        }
+
         if (ok) {
             response.sendRedirect(request.getContextPath()
                 + "/admin/events?success=Event+updated+successfully");
