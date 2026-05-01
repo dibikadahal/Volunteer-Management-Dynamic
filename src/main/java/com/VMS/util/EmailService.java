@@ -62,6 +62,79 @@ public class EmailService {
     }
 
     /**
+     * Forwards a contact form submission to the admin inbox.
+     * Sets Reply-To as the sender's email so the admin can reply directly.
+     *
+     * @param senderName    name entered in the contact form
+     * @param senderEmail   email entered in the contact form
+     * @param subject       subject entered in the contact form
+     * @param messageBody   message entered in the contact form
+     */
+    public static void sendContactEmail(String senderName, String senderEmail,
+                                        String subject, String messageBody)
+            throws MessagingException, Exception {
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth",            "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host",            SMTP_HOST);
+        props.put("mail.smtp.port",            String.valueOf(SMTP_PORT));
+        props.put("mail.smtp.ssl.trust",       SMTP_HOST);
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(SENDER_EMAIL, SENDER_PASS);
+            }
+        });
+
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(SENDER_EMAIL, SENDER_NAME));
+        // Send to admin inbox; reply-to goes back to the person who filled the form
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(SENDER_EMAIL));
+        message.setReplyTo(InternetAddress.parse(senderEmail));
+        message.setSubject("[VolunteerHub Contact] " + subject);
+        message.setContent(buildContactEmailBody(senderName, senderEmail, subject, messageBody),
+                           "text/html; charset=utf-8");
+
+        Transport.send(message);
+        System.out.println("=== CONTACT EMAIL SENT ===");
+    }
+
+    private static String buildContactEmailBody(String name, String email,
+                                                String subject, String msg) {
+        String safeMsg = msg.replace("&","&amp;").replace("<","&lt;")
+                            .replace(">","&gt;").replace("\n","<br>");
+        return "<!DOCTYPE html><html><head><meta charset='UTF-8'>" +
+            "<style>" +
+            "body{margin:0;padding:0;background:#0f0c1a;font-family:'Segoe UI',sans-serif;}" +
+            ".wrap{max-width:560px;margin:40px auto;background:#1e1836;border-radius:16px;overflow:hidden;border:1px solid rgba(124,92,191,.2);}" +
+            ".hdr{background:linear-gradient(135deg,#7c5cbf,#4f8ef7);padding:32px 40px;}" +
+            ".hdr h1{color:#fff;margin:0;font-size:22px;font-weight:700;}" +
+            ".hdr p{color:rgba(255,255,255,.8);margin:4px 0 0;font-size:13px;}" +
+            ".bdy{padding:32px 40px;}" +
+            ".row{margin-bottom:18px;}" +
+            ".lbl{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#5c5480;margin-bottom:4px;}" +
+            ".val{font-size:14px;color:#c8c0e8;line-height:1.6;}" +
+            ".msg-box{background:#16112b;border:1px solid rgba(124,92,191,.2);border-radius:10px;padding:18px 20px;margin-top:20px;}" +
+            ".msg-box p{color:#c8c0e8;font-size:14px;line-height:1.7;margin:0;}" +
+            ".ftr{border-top:1px solid rgba(124,92,191,.15);padding:18px 40px;text-align:center;}" +
+            ".ftr p{color:#5c5480;font-size:12px;margin:0;}" +
+            "</style></head><body>" +
+            "<div class='wrap'>" +
+            "<div class='hdr'><h1>&#9825; VolunteerHub</h1><p>New Contact Form Submission</p></div>" +
+            "<div class='bdy'>" +
+            "<div class='row'><div class='lbl'>From</div><div class='val'>" + name + "</div></div>" +
+            "<div class='row'><div class='lbl'>Email</div><div class='val'><a href='mailto:" + email + "' style='color:#4f8ef7;'>" + email + "</a></div></div>" +
+            "<div class='row'><div class='lbl'>Subject</div><div class='val'>" + subject + "</div></div>" +
+            "<div class='lbl' style='margin-bottom:8px;'>Message</div>" +
+            "<div class='msg-box'><p>" + safeMsg + "</p></div>" +
+            "</div>" +
+            "<div class='ftr'><p>Received via VolunteerHub contact form &nbsp;&middot;&nbsp; Reply directly to " + email + "</p></div>" +
+            "</div></body></html>";
+    }
+
+    /**
      * Builds a styled HTML email body matching the VolunteerHub purple/blue theme.
      */
     private static String buildEmailBody(String resetLink) {
