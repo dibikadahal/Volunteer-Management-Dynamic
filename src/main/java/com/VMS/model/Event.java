@@ -64,6 +64,16 @@ public class Event {
 
     // ── Helpers for JSP ───────────────────────────────────
 
+    /** ISO-8601 for FullCalendar: "yyyy-MM-ddTHH:mm:ss" */
+    public String getStartsAtISO() {
+        if (startsAt == null) return "";
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(startsAt);
+    }
+    public String getEndsAtISO() {
+        if (endsAt == null) return "";
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(endsAt);
+    }
+
     /** Format for HTML datetime-local input: "yyyy-MM-ddTHH:mm" */
     public String getStartsAtInput() {
         if (startsAt == null) return "";
