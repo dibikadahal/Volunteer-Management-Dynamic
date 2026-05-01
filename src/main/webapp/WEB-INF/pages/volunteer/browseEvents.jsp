@@ -264,6 +264,9 @@
     <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="nav-item active">
         <i class="fas fa-calendar-alt"></i> Browse Events
     </a>
+    <a href="${pageContext.request.contextPath}/volunteer/calendar" class="nav-item">
+        <i class="fas fa-calendar-week"></i> Calendar
+    </a>
     <a href="${pageContext.request.contextPath}/volunteer/my-events" class="nav-item">
         <i class="fas fa-heart"></i> My Events
     </a>
