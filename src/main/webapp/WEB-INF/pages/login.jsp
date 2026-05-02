@@ -104,11 +104,12 @@
                         <label for="email" class="form-label">Email Address</label>
                         <div class="form-input-wrapper">
                             <span class="input-icon">&#9993;</span>
-                            <input type="email" id="email" name="email"
+                            <input type="text" id="email" name="email"
                                    placeholder="Enter your email"
-                                   class="form-input" required>
-                            <span class="input-validation"></span>
+                                   class="form-input">
+                            <span class="input-validation" id="emailStatus"></span>
                         </div>
+                        <span class="field-error" id="emailError"></span>
                     </div>
 
                     <!-- Password -->
@@ -121,11 +122,12 @@
                             <span class="input-icon">&#128274;</span>
                             <input type="password" id="password" name="password"
                                    placeholder="Enter your password"
-                                   class="form-input" required>
+                                   class="form-input">
                             <button type="button" class="password-toggle" onclick="togglePassword()">
                                 <span class="toggle-icon">&#128065;&#65039;</span>
                             </button>
                         </div>
+                        <span class="field-error" id="passwordError"></span>
                     </div>
 
                     <!-- Remember Me -->
@@ -199,6 +201,17 @@
             }
         }
 
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        function isValidEmail(val) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        }
+
         document.querySelectorAll('.form-input').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.classList.add('focused');
@@ -214,8 +227,39 @@
             });
         });
 
+        // Clear errors on input
+        document.getElementById('email').addEventListener('input', function() {
+            showError('emailError', '');
+        });
+        document.getElementById('password').addEventListener('input', function() {
+            showError('passwordError', '');
+        });
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const email    = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            let valid = true;
+
+            if (!email) {
+                showError('emailError', 'Email address is required.');
+                valid = false;
+            } else if (!isValidEmail(email)) {
+                showError('emailError', 'Please enter a valid email address (e.g. user@example.com).');
+                valid = false;
+            } else {
+                showError('emailError', '');
+            }
+
+            if (!password) {
+                showError('passwordError', 'Password is required.');
+                valid = false;
+            } else {
+                showError('passwordError', '');
+            }
+
+            if (!valid) return;
+
             const button = this.querySelector('.login-button');
             button.classList.add('loading');
             setTimeout(() => {
