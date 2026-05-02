@@ -1005,6 +1005,13 @@ html, body {
     }
 }
 
+.field-error {
+    display: none;
+    color: #EF4444;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
 .error-msg {
     background: #fef2f2;
     color: #b91c1c;
