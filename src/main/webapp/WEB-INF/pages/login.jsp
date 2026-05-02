@@ -206,6 +206,7 @@
             if (!el) return;
             el.textContent = msg;
             el.style.display = msg ? 'block' : 'none';
+            el.style.color = '#EF4444';
         }
 
         function isValidEmail(val) {
