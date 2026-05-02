@@ -38,16 +38,16 @@
                 <p class="side-subtitle">Make a difference. Help others. Be part of something meaningful.</p>
                 <div class="stat-boxes">
                     <div class="stat-box">
-                        <span class="stat-number">2.5K+</span>
+                        <span class="stat-number">${activeVolunteers}+</span>
                         <span class="stat-label">Active Volunteers</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-number">500+</span>
-                        <span class="stat-label">Projects</span>
+                        <span class="stat-number">${totalEvents}+</span>
+                        <span class="stat-label">Events</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-number">50K+</span>
-                        <span class="stat-label">Lives Impacted</span>
+                        <span class="stat-number">${totalAttended}+</span>
+                        <span class="stat-label">Attendances</span>
                     </div>
                 </div>
             </div>
