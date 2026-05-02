@@ -1,6 +1,9 @@
 package com.VMS.controller;
 
 import java.io.IOException;
+import com.VMS.dao.AdminDashboardDAO;
+import com.VMS.dao.AssignmentDAO;
+import com.VMS.dao.EventDAO;
 import com.VMS.dao.UserDAO;
 import com.VMS.dao.UserDAO.LoginException;
 import com.VMS.model.User;
@@ -15,7 +18,10 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet({"/login", "/register", "/logout"})
 public class AuthController extends HttpServlet {
 
-    private final UserDAO userDao = new UserDAO();
+    private final UserDAO           userDao      = new UserDAO();
+    private final AdminDashboardDAO dashboardDao = new AdminDashboardDAO();
+    private final EventDAO          eventDao     = new EventDAO();
+    private final AssignmentDAO     assignDao    = new AssignmentDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -23,9 +29,11 @@ public class AuthController extends HttpServlet {
         String path = request.getServletPath();
 
         if (path.equals("/login")) {
+            injectStats(request);
             request.getRequestDispatcher("/WEB-INF/pages/login.jsp")
                    .forward(request, response);
         } else if (path.equals("/register")) {
+            injectStats(request);
             request.getRequestDispatcher("/WEB-INF/pages/register.jsp")
                    .forward(request, response);
         } else if (path.equals("/logout")) {
@@ -43,6 +51,15 @@ public class AuthController extends HttpServlet {
         } else if (path.equals("/register")) {
             handleRegister(request, response);
         }
+    }
+
+    // ══════════════════════════════════════
+    // STATS — shared by login & register
+    // ══════════════════════════════════════
+    private void injectStats(HttpServletRequest request) {
+        request.setAttribute("activeVolunteers", dashboardDao.countActiveVolunteers());
+        request.setAttribute("totalEvents",      eventDao.countTotalEvents());
+        request.setAttribute("totalAttended",    assignDao.countTotalAttended());
     }
 
     // ══════════════════════════════════════
