@@ -280,7 +280,11 @@
     // ── Helpers ──────────────────────────────────────
     function showError(id, msg) {
         const el = document.getElementById(id);
-        if (el) { el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+        if (el) {
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+            el.style.color = '#EF4444';
+        }
     }
     function setStatus(id, ok) {
         const el = document.getElementById(id);
