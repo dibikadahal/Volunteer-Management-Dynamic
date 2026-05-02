@@ -51,6 +51,20 @@
                         <span class="benefit-text">Grow your skills</span>
                     </div>
                 </div>
+                <div class="stat-boxes">
+                    <div class="stat-box">
+                        <span class="stat-number">${activeVolunteers}+</span>
+                        <span class="stat-label">Active Volunteers</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">${totalEvents}+</span>
+                        <span class="stat-label">Events</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">${totalAttended}+</span>
+                        <span class="stat-label">Attendances</span>
+                    </div>
+                </div>
             </div>
         </div>
 
