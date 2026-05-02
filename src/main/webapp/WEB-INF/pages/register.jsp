@@ -169,8 +169,9 @@
                                 type="tel"
                                 id="phone"
                                 name="phone"
-                                placeholder="+1 (555) 000-0000"
+                                placeholder="10-digit phone number"
                                 class="form-input"
+                                maxlength="15"
                             >
                             <span class="input-validation" id="phoneStatus"></span>
                         </div>
@@ -335,8 +336,14 @@
 
     document.getElementById('phone').addEventListener('input', debounce(function () {
         const val = this.value.trim();
-        if (val) checkField('phone', val, 'phoneStatus', 'phoneError', 'Phone number is already registered.');
-        else { setStatus('phoneStatus', null); showError('phoneError', ''); }
+        if (!val) { setStatus('phoneStatus', null); showError('phoneError', 'Phone number is required.'); return; }
+        const digits = val.replace(/\D/g, '');
+        if (digits.length !== 10) {
+            setStatus('phoneStatus', false);
+            showError('phoneError', 'Phone number must be exactly 10 digits.');
+            return;
+        }
+        checkField('phone', val, 'phoneStatus', 'phoneError', 'Phone number is already registered.');
     }, 400));
 
     // ── Password validation ───────────────────────────
@@ -386,6 +393,10 @@
     document.getElementById('confirmPassword').addEventListener('input', validateConfirm);
 
     // ── Submit validation ─────────────────────────────
+    function isValidEmail(val) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    }
+
     document.getElementById('registerForm').addEventListener('submit', function (e) {
         let valid = true;
 
@@ -393,6 +404,7 @@
         const lastName  = document.getElementById('lastName').value.trim();
         const email     = document.getElementById('email').value.trim();
         const username  = document.getElementById('username').value.trim();
+        const phone     = document.getElementById('phone').value.trim();
         const password  = document.getElementById('password').value;
         const confirm   = document.getElementById('confirmPassword').value;
         const terms     = document.getElementById('terms').checked;
@@ -403,9 +415,24 @@
         if (!lastName) { showError('lastNameError', 'Last name is required.'); valid = false; }
         else showError('lastNameError', '');
 
-        if (!email) { showError('emailError', 'Email is required.'); valid = false; }
+        if (!email) {
+            showError('emailError', 'Email address is required.'); valid = false;
+        } else if (!isValidEmail(email)) {
+            showError('emailError', 'Please enter a valid email address (e.g. user@example.com).'); valid = false;
+        } else {
+            showError('emailError', '');
+        }
 
         if (!username) { showError('usernameError', 'Username is required.'); valid = false; }
+        else showError('usernameError', '');
+
+        if (!phone) {
+            showError('phoneError', 'Phone number is required.'); valid = false;
+        } else if (phone.replace(/\D/g, '').length !== 10) {
+            showError('phoneError', 'Phone number must be exactly 10 digits.'); valid = false;
+        } else {
+            showError('phoneError', '');
+        }
 
         if (!password) {
             showError('passwordError', 'Password is required.'); valid = false;
@@ -415,18 +442,22 @@
             showError('passwordError', 'Password must contain at least one number.'); valid = false;
         } else if (!/[^A-Za-z0-9]/.test(password)) {
             showError('passwordError', 'Password must contain at least one special character.'); valid = false;
+        } else {
+            showError('passwordError', '');
         }
 
-        if (password && confirm && password !== confirm) {
-            showError('confirmPasswordError', 'Passwords do not match.'); valid = false;
-        } else if (!confirm) {
+        if (!confirm) {
             showError('confirmPasswordError', 'Please confirm your password.'); valid = false;
+        } else if (password && confirm && password !== confirm) {
+            showError('confirmPasswordError', 'Passwords do not match.'); valid = false;
+        } else {
+            showError('confirmPasswordError', '');
         }
 
         if (!terms) { showError('termsError', 'You must accept the terms to register.'); valid = false; }
         else showError('termsError', '');
 
-        // Block if any inline duplicate error is visible
+        // Block if any inline duplicate error is still visible
         const usernameErr = document.getElementById('usernameError').textContent;
         const emailErr    = document.getElementById('emailError').textContent;
         const phoneErr    = document.getElementById('phoneError').textContent;
