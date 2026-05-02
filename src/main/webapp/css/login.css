@@ -1007,7 +1007,7 @@ html, body {
 
 .field-error {
     display: none;
-    color: #EF4444;
+    color: #EF4444 !important;
     font-size: 11px;
     margin-top: 3px;
 }
