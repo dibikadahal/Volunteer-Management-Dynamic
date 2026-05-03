@@ -139,6 +139,7 @@
     <div class="sidebar-section-label">Management</div>
     <a href="${pageContext.request.contextPath}/admin/volunteers" class="nav-item"><i class="fas fa-users"></i> Volunteer Management</a>
     <a href="${pageContext.request.contextPath}/admin/events" class="nav-item"><i class="fas fa-calendar-alt"></i> Event Management</a>
+    <a href="${pageContext.request.contextPath}/admin/calendar" class="nav-item"><i class="fas fa-calendar-week"></i> Calendar</a>
     <a href="${pageContext.request.contextPath}/admin/assignments" class="nav-item active"><i class="fas fa-link"></i> Assignments</a>
     <div class="sidebar-section-label">Account</div>
     <a href="${pageContext.request.contextPath}/admin/profile" class="nav-item"><i class="fas fa-user-circle"></i> Profile Management</a>
@@ -410,7 +411,7 @@
                                             <input type="hidden" name="eventId" value="<%= h(selectedEventId) %>">
                                             <button type="submit" class="btn-sm btn-decline"><i class="fas fa-times"></i> Decline</button>
                                         </form>
-                                        <% } else if (vAcc && vHasAssign && selectedIsPast) { %>
+                                        <% } else if (vAcc && vHasAssign) { %>
                                         <% if (!vAttended) { %>
                                         <form method="POST" action="${pageContext.request.contextPath}/admin/assignments" style="display:inline;">
                                             <input type="hidden" name="action"  value="mark-attended">
@@ -426,8 +427,7 @@
                                             <button type="submit" class="btn-sm btn-absent"><i class="fas fa-undo"></i> Mark Absent</button>
                                         </form>
                                         <% } %>
-                                        <% } else if (vAcc && !vHasAssign && selectedIsPast) { %>
-                                        <%-- Assignment record missing — create on accept would have handled this; show notice --%>
+                                        <% } else if (vAcc && !vHasAssign) { %>
                                         <span style="font-size:11px; color:var(--text-muted);">No record</span>
                                         <% } else { %>
                                         <span style="font-size:11px; color:var(--text-muted);">—</span>
