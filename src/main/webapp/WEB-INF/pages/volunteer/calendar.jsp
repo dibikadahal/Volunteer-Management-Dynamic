@@ -147,6 +147,9 @@
 </head>
 <body>
 
+<!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
@@ -167,8 +170,13 @@
 <div class="main">
     <div class="topbar">
         <div class="topbar-left">
-            <h2>Event Calendar</h2>
-            <p>View all events — click any event for details</p>
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-left-text">
+                <h2>Event Calendar</h2>
+                <p>View all events — click any event for details</p>
+            </div>
         </div>
         <div class="topbar-right">
             <a href="${pageContext.request.contextPath}/volunteer/profile" style="text-decoration:none;">
@@ -366,6 +374,16 @@ function closeDetail() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeDetail();
 });
+
+// ── Mobile sidebar toggle ──
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
 </script>
 </body>
 </html>
