@@ -23,14 +23,18 @@
     int totalAccepted = request.getAttribute("totalAccepted") != null ? (Integer) request.getAttribute("totalAccepted") : 0;
     int totalAttended = request.getAttribute("totalAttended") != null ? ((Number) request.getAttribute("totalAttended")).intValue() : 0;
 
-    // Badge level + next milestone
-    int badgeLevel  = totalPoints / 50;
-    int nextBadge   = (badgeLevel + 1) * 50;
-    int ptsToNext   = nextBadge - totalPoints;
-    int progressPct = totalPoints > 0 ? Math.min((totalPoints % 50) * 100 / 50, 100) : 0;
-    String[] badgeNames = {"Newcomer", "Helper", "Contributor", "Champion", "Legend"};
-    String currentBadge = badgeLevel < badgeNames.length ? badgeNames[badgeLevel] : "Master";
-    String nextBadgeName = (badgeLevel + 1) < badgeNames.length ? badgeNames[badgeLevel + 1] : "Master";
+    // Attendance-based badges: 1 event attended = 1 badge earned
+    String[] badgeNames = {"First Timer", "Helping Hand", "Team Player", "Dedicated", "Champion"};
+    String[] badgeIcons = {"star", "award", "trophy", "crown", "gem"};
+    String currentBadge;
+    if (totalAttended == 0) {
+        currentBadge = "New Volunteer";
+    } else if (totalAttended <= badgeNames.length) {
+        currentBadge = badgeNames[totalAttended - 1];
+    } else {
+        currentBadge = "Master";
+    }
+    String nextBadgeName = totalAttended < badgeNames.length ? badgeNames[totalAttended] : "Master";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,45 +199,51 @@
             </div>
         </div>
 
-        <!-- Points Banner -->
-        <% if (totalAccepted > 0 || totalPoints > 0) { %>
+        <!-- Badge Banner -->
+        <% if (totalAccepted > 0 || totalAttended > 0) { %>
         <div class="pts-banner">
             <div>
-                <div class="pts-big"><%= totalPoints %></div>
-                <div class="pts-label">pts</div>
+                <div class="pts-big"><%= totalAttended %></div>
+                <div class="pts-label">badge<%= totalAttended != 1 ? "s" : "" %></div>
             </div>
             <div class="pts-info">
                 <div class="pts-title">
-                    <% if (badgeLevel > 0) { %>
+                    <% if (totalAttended > 0) { %>
                     <i class="fas fa-medal" style="color:#f5a623;"></i> <%= currentBadge %> Volunteer
                     <% } else { %>
                     <i class="fas fa-seedling" style="color:#38c9b0;"></i> Welcome, <%= volName %>!
                     <% } %>
                 </div>
                 <div class="pts-sub">
-                    <% if (ptsToNext < 50) { %>
-                    <strong style="color:#f5a623;"><%= ptsToNext %> more points</strong> to earn the <strong><%= nextBadgeName %></strong> badge!
+                    <% if (totalAttended == 0) { %>
+                    Attend your first event to earn the <strong><%= nextBadgeName %></strong> badge!
+                    <% } else if (totalAttended < badgeNames.length) { %>
+                    Attend <strong style="color:#f5a623;">1 more event</strong> to earn the <strong><%= nextBadgeName %></strong> badge!
                     <% } else { %>
-                    Keep attending events to earn more points and badges!
+                    You've unlocked all milestone badges — keep going for Master status!
                     <% } %>
                 </div>
-                <div class="pts-progress-wrap">
-                    <div class="pts-progress-fill" style="width:<%= progressPct %>%"></div>
-                </div>
-                <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">
-                    <%= totalPoints % 50 %> / 50 pts to next badge
+                <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">
+                    <i class="fas fa-star" style="color:#f5a623; font-size:10px;"></i>
+                    <%= totalPoints %> reward points &nbsp;·&nbsp; 1 badge per event attended
                 </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-                <% if (badgeLevel >= 1) { %>
-                <% for (int b = 1; b <= Math.min(badgeLevel, 5); b++) { %>
+                <% if (totalAttended > 0) { %>
+                <%  int visibleBadges = Math.min(totalAttended, 5);
+                    for (int b = 0; b < visibleBadges; b++) { %>
                 <span class="badge-chip">
-                    <i class="fas fa-<%= b==1?"star":b==2?"award":b==3?"trophy":b==4?"crown":"gem" %>" style="font-size:10px;"></i>
-                    <%= b < badgeNames.length ? badgeNames[b] : "Master" %>
+                    <i class="fas fa-<%= badgeIcons[b] %>" style="font-size:10px;"></i>
+                    <%= badgeNames[b] %>
                 </span>
-                <% } %>
+                <%  } %>
+                <%  if (totalAttended > 5) { %>
+                <span class="badge-chip" style="opacity:.75; font-size:11px;">
+                    <i class="fas fa-plus" style="font-size:9px;"></i> <%= totalAttended - 5 %> more
+                </span>
+                <%  } %>
                 <% } else { %>
-                <span class="badge-chip" style="opacity:.5;"><i class="fas fa-star" style="font-size:10px;"></i> Attend 4–5 events for first badge</span>
+                <span class="badge-chip" style="opacity:.5;"><i class="fas fa-star" style="font-size:10px;"></i> Attend 1 event for first badge</span>
                 <% } %>
             </div>
         </div>
