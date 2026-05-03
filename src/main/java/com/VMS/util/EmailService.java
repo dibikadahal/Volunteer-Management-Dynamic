@@ -26,7 +26,7 @@ public class EmailService {
      * @param toEmail   recipient email address
      * @param resetLink full reset URL with token
      */
-    public static void sendPasswordResetEmail(String toEmail, String resetLink) throws MessagingException, Exception {
+    public static void sendPasswordResetEmail(String toEmail, String resetLink) throws Exception {
 
         Properties props = new Properties();
         props.put("mail.smtp.auth",            "true");
@@ -72,7 +72,7 @@ public class EmailService {
      */
     public static void sendContactEmail(String senderName, String senderEmail,
                                         String subject, String messageBody)
-            throws MessagingException, Exception {
+            throws Exception {
 
         Properties props = new Properties();
         props.put("mail.smtp.auth",            "true");
