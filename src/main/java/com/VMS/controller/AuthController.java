@@ -218,6 +218,6 @@ public class AuthController extends HttpServlet {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
-        response.sendRedirect(request.getContextPath() + "/login");
+        response.sendRedirect(request.getContextPath() + "/home");
     }
 }
