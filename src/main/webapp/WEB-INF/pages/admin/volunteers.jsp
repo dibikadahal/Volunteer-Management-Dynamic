@@ -289,6 +289,9 @@
 </head>
 <body>
 
+<!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
@@ -326,8 +329,13 @@
     <!-- Topbar -->
     <div class="topbar">
         <div class="topbar-left">
-            <h2>Volunteer Management</h2>
-            <p>View and manage all registered volunteers</p>
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-left-text">
+                <h2>Volunteer Management</h2>
+                <p>View and manage all registered volunteers</p>
+            </div>
         </div>
         <div class="topbar-right">
             <div class="topbar-icon-btn" style="position:relative;">
@@ -726,6 +734,16 @@ function openDetailModal(id) {
         setTimeout(function() { flash.remove(); }, 500);
     }, 4000);
 })();
+
+// ── Mobile sidebar toggle ──
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
 </script>
 
 </body>
