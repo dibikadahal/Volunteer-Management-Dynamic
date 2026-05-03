@@ -131,6 +131,9 @@
 </head>
 <body>
 
+<!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
@@ -152,8 +155,13 @@
 <div class="main">
     <div class="topbar">
         <div class="topbar-left">
-            <h2>Assignments</h2>
-            <p>Connect events with volunteers and track attendance &amp; reward points</p>
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-left-text">
+                <h2>Assignments</h2>
+                <p>Connect events with volunteers and track attendance &amp; reward points</p>
+            </div>
         </div>
         <div class="topbar-right">
             <div class="topbar-icon-btn"><i class="fas fa-bell"></i></div>
@@ -463,6 +471,16 @@
         panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 120);
 })();
+
+// ── Mobile sidebar toggle ──
+function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
 </script>
 
 </body>
