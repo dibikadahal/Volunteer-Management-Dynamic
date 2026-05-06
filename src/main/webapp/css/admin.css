@@ -653,10 +653,11 @@ a {
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
 
 /* ══════════════════════════════════════
-   HAMBURGER TOGGLE BUTTON
+   HAMBURGER BUTTON — always rendered,
+   hidden on desktop via display:none
    ══════════════════════════════════════ */
 .menu-toggle {
-    display: none;
+    display: none;           /* shown only on mobile via media query */
     width: 38px;
     height: 38px;
     border-radius: 10px;
@@ -675,41 +676,65 @@ a {
     color: var(--text-primary);
 }
 
-/* Topbar left: flex row so hamburger sits next to title */
+/* Topbar left — flex so hamburger + title sit side by side */
 .topbar-left {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;           /* allow text to truncate instead of overflow */
 }
-.topbar-left-text h2 { font-size: 20px; font-weight: 600; color: var(--text-primary); font-family: 'Sora', sans-serif; }
-.topbar-left-text p  { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.topbar-left-text { min-width: 0; }
+.topbar-left-text h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.topbar-left-text p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-/* ── Sidebar overlay (mobile) ── */
+/* ══════════════════════════════════════
+   SIDEBAR OVERLAY (tappable backdrop)
+   ══════════════════════════════════════ */
 .sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 99;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 150;       /* between sidebar (z:200) and main content */
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
 }
 .sidebar-overlay.active { display: block; }
-.sidebar { transition: transform 0.3s ease; }
 
-/* ══════════════════════════════════════
-   RESPONSIVE — TABLET (≤1100px)
-   ══════════════════════════════════════ */
-@media (max-width: 1100px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .page-body  { padding: 28px; }
-    .topbar     { padding: 16px 28px; }
+/* Sidebar gets a left-transition so it slides in/out on mobile */
+.sidebar {
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ══════════════════════════════════════
-   RESPONSIVE — SMALL TABLET (≤900px)
+   RESPONSIVE — LARGE TABLET (≤1200px)
    ══════════════════════════════════════ */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
+    :root { --sidebar-w: 220px; }
+    .page-body { padding: 28px; }
+    .topbar    { padding: 16px 28px; }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — TABLET (≤1024px)
+   ══════════════════════════════════════ */
+@media (max-width: 1024px) {
+    .stats-grid  { grid-template-columns: repeat(2, 1fr); }
     .bottom-grid { grid-template-columns: 1fr; }
     .page-body   { padding: 24px; }
     .topbar      { padding: 14px 24px; }
@@ -717,68 +742,118 @@ a {
 
 /* ══════════════════════════════════════
    RESPONSIVE — MOBILE (≤768px)
+   The sidebar becomes a slide-in drawer.
+   Uses `left` (NOT transform) because
+   transform on position:fixed breaks in
+   many mobile browsers when overflow-x
+   is hidden on body.
    ══════════════════════════════════════ */
 @media (max-width: 768px) {
-    /* Show hamburger button */
-    .menu-toggle { display: flex; }
 
-    /* Sidebar slides off-screen by default */
+    /* ── Show hamburger ── */
+    .menu-toggle { display: flex !important; }
+
+    /* ── Sidebar: push it completely off-screen to the left ── */
     .sidebar {
-        transform: translateX(-100%);
-        z-index: 200;
+        left: calc(-1 * var(--sidebar-w)) !important;
+        z-index: 200 !important;
+        box-shadow: none;
     }
-    .sidebar.open { transform: translateX(0); }
 
-    /* Main content spans full width */
-    .main { margin-left: 0; }
+    /* ── Sidebar open state ── */
+    .sidebar.open {
+        left: 0 !important;
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+    }
 
-    /* Topbar */
-    .topbar { padding: 12px 16px; }
-    .topbar-left h2,
-    .topbar-left-text h2 { font-size: 17px; }
+    /* ── Main: take full viewport width ── */
+    .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* ── Topbar ── */
+    .topbar { padding: 12px 16px !important; }
     .topbar-left p,
-    .topbar-left-text p  { display: none; }
+    .topbar-left-text p { display: none !important; }
+    .topbar-left h2,
+    .topbar-left-text h2 { font-size: 16px; }
 
-    /* Welcome banner — stack vertically */
+    /* ── Welcome banner — stack vertically ── */
     .welcome-banner {
-        flex-direction: column;
+        flex-direction: column !important;
         gap: 16px;
-        padding: 24px 20px;
+        padding: 20px 16px;
         text-align: center;
     }
     .datetime-block { text-align: center; }
-    .datetime-time  { font-size: 26px; }
-    .welcome-text h1 { font-size: 20px; }
+    .datetime-time  { font-size: 24px; }
+    .welcome-text h1 { font-size: 19px; }
 
-    /* Grids */
-    .stats-grid  { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-    .bottom-grid { grid-template-columns: 1fr; gap: 14px; }
+    /* ── Stat cards: 2 columns ── */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
 
-    /* Page body */
-    .page-body { padding: 16px; }
+    /* ── Bottom grid: single column ── */
+    .bottom-grid { grid-template-columns: 1fr !important; gap: 14px; }
+
+    /* ── Page body padding ── */
+    .page-body { padding: 14px !important; }
+
+    /* ── Topbar right: tighten spacing ── */
+    .topbar-right { gap: 8px; }
 }
 
 /* ══════════════════════════════════════
    RESPONSIVE — SMALL MOBILE (≤480px)
    ══════════════════════════════════════ */
 @media (max-width: 480px) {
-    .stats-grid  { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-value  { font-size: 26px; }
-    .stat-icon   { width: 36px; height: 36px; font-size: 15px; margin-bottom: 12px; }
-    .page-body   { padding: 12px; }
-    .topbar-right { gap: 10px; }
-    .welcome-banner { padding: 20px 14px; }
-    .welcome-text h1 { font-size: 18px; }
+    .stats-grid   { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    .stat-value   { font-size: 24px; }
+    .stat-label   { font-size: 12px; }
+    .stat-icon    { width: 36px; height: 36px; font-size: 14px; margin-bottom: 10px; }
+    .page-body    { padding: 10px !important; }
+    .topbar-right { gap: 6px; }
+
+    /* Wider tables: allow horizontal scroll within wrapper */
+    .events-table-wrap,
+    .vol-table-wrap,
+    .assign-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Welcome banner tighter */
+    .welcome-banner { padding: 16px 12px; }
+    .welcome-text h1 { font-size: 17px; }
+    .datetime-time   { font-size: 20px; }
+
+    /* Pending list: allow wrapping */
+    .reg-item    { flex-wrap: wrap; gap: 8px; }
+    .event-item  { flex-wrap: wrap; gap: 8px; }
 }
 
 /* ══════════════════════════════════════
-   RESPONSIVE — VERY SMALL (≤360px)
+   RESPONSIVE — VERY SMALL (≤400px)
    ══════════════════════════════════════ */
-@media (max-width: 360px) {
-    .stats-grid { grid-template-columns: 1fr; }
+@media (max-width: 400px) {
+    .stats-grid { grid-template-columns: 1fr !important; }
+    .stat-card  { padding: 16px; }
+
+    /* Admin avatar: slightly smaller */
+    .admin-avatar    { width: 32px; height: 32px; font-size: 12px; }
+    .topbar-icon-btn { width: 32px; height: 32px; }
 }
 
-/* ── Notification dropdown on small screens ── */
+/* ══════════════════════════════════════
+   NOTIFICATION DROPDOWN — clamp width
+   so it never overflows viewport
+   ══════════════════════════════════════ */
 @media (max-width: 420px) {
-    .notif-dropdown { width: calc(100vw - 32px); right: -60px; }
+    .notif-dropdown {
+        width: calc(100vw - 24px);
+        right: -8px;
+        left: auto;
+    }
 }
