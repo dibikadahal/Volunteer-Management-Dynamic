@@ -286,6 +286,46 @@
         .av-amber  { background: linear-gradient(135deg, #f5a623, #e05c97); }
         .av-pink   { background: linear-gradient(135deg, #e05c97, #7c5cbf); }
     </style>
+    <style>
+        /* ── MOBILE RESPONSIVE CRITICAL OVERRIDE ── */
+        @media (max-width: 768px) {
+            aside.sidebar { display: none !important; }
+            aside.sidebar.open {
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 260px !important;
+                max-width: 82vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                transform: none !important;
+            }
+            div.main {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-width: 0 !important;
+            }
+            button.menu-toggle { display: flex !important; }
+            .sidebar-overlay   { z-index: 9000 !important; }
+            .topbar            { padding: 10px 14px !important; }
+            .topbar-left p, .topbar-left-text p { display: none !important; }
+            .page-body         { padding: 12px !important; }
+            .stats-grid        { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .bottom-grid, .mid-grid { grid-template-columns: 1fr !important; }
+            .welcome-banner    { flex-direction: column !important; padding: 16px !important; gap: 14px !important; }
+            .welcome-left      { width: 100% !important; }
+            .datetime-block    { text-align: left !important; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+            .page-body  { padding: 8px !important; }
+        }
+    </style>
 </head>
 <body>
 
@@ -737,12 +777,16 @@ function openDetailModal(id) {
 
 // ── Mobile sidebar toggle ──
 function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('active');
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var isOpen  = sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+    document.documentElement.style.overflow = isOpen ? 'hidden' : '';
 }
 function closeSidebar() {
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('active');
+    document.documentElement.style.overflow = '';
 }
 </script>
 
