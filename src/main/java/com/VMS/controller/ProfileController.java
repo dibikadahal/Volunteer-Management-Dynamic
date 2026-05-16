@@ -144,7 +144,7 @@ public class ProfileController extends HttpServlet {
             throws ServletException, IOException {
         String role = (String) req.getSession().getAttribute("userRole");
         String jsp = "admin".equals(role)
-                ? "/WEB-INF/pages/admin/profile.jsp"
+                ? "/WEB-INF/pages/admin/Profile.jsp"
                 : "/WEB-INF/pages/volunteer/profile.jsp";
         req.getRequestDispatcher(jsp).forward(req, res);
     }

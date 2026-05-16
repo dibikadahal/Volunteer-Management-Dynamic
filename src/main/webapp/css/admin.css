@@ -392,18 +392,6 @@ a {
     box-shadow: 0 12px 40px rgba(0,0,0,0.3);
 }
 
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.stat-card.purple::before { background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); }
-.stat-card.blue::before   { background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal)); }
-.stat-card.teal::before   { background: linear-gradient(90deg, var(--accent-teal), #2dd4bf); }
-.stat-card.pink::before   { background: linear-gradient(90deg, var(--accent-pink), var(--accent-amber)); }
 
 .stat-icon {
     width: 44px;
@@ -416,10 +404,10 @@ a {
     margin-bottom: 16px;
 }
 
-.stat-card.purple .stat-icon { background: rgba(124,92,191,0.18); color: var(--accent-purple); }
-.stat-card.blue .stat-icon   { background: rgba(79,142,247,0.18);  color: var(--accent-blue); }
-.stat-card.teal .stat-icon   { background: rgba(56,201,176,0.18);  color: var(--accent-teal); }
-.stat-card.pink .stat-icon   { background: rgba(224,92,151,0.18);  color: var(--accent-pink); }
+.stat-card.purple .stat-icon,
+.stat-card.blue .stat-icon,
+.stat-card.teal .stat-icon,
+.stat-card.pink .stat-icon   { background: none; color: var(--text-secondary); }
 
 .stat-value {
     font-family: 'Sora', sans-serif;

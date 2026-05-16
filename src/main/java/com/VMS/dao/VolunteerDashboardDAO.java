@@ -19,7 +19,7 @@ public class VolunteerDashboardDAO {
 
     public int getTotalHoursServed(String userId) {
         String sql =
-            "SELECT COALESCE(SUM(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt)), 0) " +
+            "SELECT COALESCE(SUM(ABS(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt))), 0) " +
             "FROM `assignment` a JOIN `event` e ON a.eventId=e.id " +
             "WHERE a.userId=? AND a.attended=TRUE";
         return query(sql, userId);

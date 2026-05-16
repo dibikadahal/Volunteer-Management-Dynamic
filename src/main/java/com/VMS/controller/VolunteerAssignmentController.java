@@ -2,6 +2,7 @@ package com.VMS.controller;
 
 import com.VMS.dao.AssignmentDAO;
 import com.VMS.dao.VolunteerDAO;
+import com.VMS.dao.VolunteerDashboardDAO;
 import com.VMS.model.VolunteerAssignmentEntry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,8 +18,9 @@ import java.util.List;
 @WebServlet({"/volunteer/assignments", "/volunteer/my-events"})
 public class VolunteerAssignmentController extends HttpServlet {
 
-    private final AssignmentDAO assignmentDao = new AssignmentDAO();
-    private final VolunteerDAO  volunteerDao  = new VolunteerDAO();
+    private final AssignmentDAO        assignmentDao  = new AssignmentDAO();
+    private final VolunteerDAO         volunteerDao   = new VolunteerDAO();
+    private final VolunteerDashboardDAO dashboardDao  = new VolunteerDashboardDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -54,12 +56,17 @@ public class VolunteerAssignmentController extends HttpServlet {
             }
         }
 
+        int hoursServed  = dashboardDao.getTotalHoursServed(userId);
+        int badgesEarned = dashboardDao.countBadgesEarned(userId);
+
         request.setAttribute("pending",       pending);
         request.setAttribute("upcoming",      upcoming);
         request.setAttribute("past",          past);
         request.setAttribute("totalPoints",   totalPoints);
         request.setAttribute("totalAccepted", accepted.size());
         request.setAttribute("totalAttended", totalAttended);
+        request.setAttribute("hoursServed",   hoursServed);
+        request.setAttribute("badgesEarned",  badgesEarned);
 
         request.getRequestDispatcher("/WEB-INF/pages/volunteer/myEvents.jsp")
                .forward(request, response);

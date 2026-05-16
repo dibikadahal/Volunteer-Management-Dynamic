@@ -107,6 +107,7 @@ public class UserDAO {
 
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
         String userId = generateId();
+        user.setId(userId);  // expose the generated ID to the caller
 
         String sql = "INSERT INTO `user` (id, firstName, lastName, email, username, password, phone, role, isActive) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, 'volunteer', false)";

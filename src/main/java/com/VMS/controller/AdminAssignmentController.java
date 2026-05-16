@@ -2,6 +2,7 @@ package com.VMS.controller;
 
 import com.VMS.dao.AdminDashboardDAO;
 import com.VMS.dao.AssignmentDAO;
+import com.VMS.dao.NotificationDAO;
 import com.VMS.dao.VolunteerDAO;
 import com.VMS.model.EventVolunteerEntry;
 import jakarta.servlet.ServletException;
@@ -18,9 +19,10 @@ import java.util.Map;
 @WebServlet("/admin/assignments")
 public class AdminAssignmentController extends HttpServlet {
 
-    private final AssignmentDAO     assignmentDao = new AssignmentDAO();
-    private final VolunteerDAO      volunteerDao  = new VolunteerDAO();
-    private final AdminDashboardDAO adminDao      = new AdminDashboardDAO();
+    private final AssignmentDAO     assignmentDao   = new AssignmentDAO();
+    private final VolunteerDAO      volunteerDao    = new VolunteerDAO();
+    private final AdminDashboardDAO adminDao        = new AdminDashboardDAO();
+    private final NotificationDAO   notificationDao = new NotificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -72,39 +74,51 @@ public class AdminAssignmentController extends HttpServlet {
         String eventId = request.getParameter("eventId");
 
         String redirectTo = request.getParameter("redirectTo");
-        String base = "dashboard".equals(redirectTo)
-            ? request.getContextPath() + "/admin/dashboard"
-            : request.getContextPath() + "/admin/assignments?eventId=" + eventId;
+        boolean toDash = "dashboard".equals(redirectTo);
+        // base ends with '?' or '&' so we can always append param=value directly
+        String base = toDash
+            ? request.getContextPath() + "/admin/dashboard?"
+            : request.getContextPath() + "/admin/assignments?eventId=" + eventId + "&";
 
         if (userId == null || eventId == null || action == null) {
-            response.sendRedirect(base + "&error=Missing+parameters");
+            response.sendRedirect(base + "error=Missing+parameters");
             return;
         }
 
         switch (action) {
             case "accept":
                 boolean ok = volunteerDao.updateVolunteerStatus(userId, eventId, "accepted");
-                if (ok) assignmentDao.createAssignment(userId, eventId);
-                response.sendRedirect(base + (ok ? "&success=Volunteer+accepted" : "&error=Failed+to+accept"));
+                if (ok) {
+                    assignmentDao.createAssignment(userId, eventId);
+                    notificationDao.insertNotification(
+                        userId, null, eventId, "accepted", "volunteer",
+                        "Your request has been accepted.");
+                }
+                response.sendRedirect(base + (ok ? "success=Volunteer+accepted" : "error=Failed+to+accept"));
                 break;
 
             case "decline":
                 boolean dk = volunteerDao.updateVolunteerStatus(userId, eventId, "declined");
-                response.sendRedirect(base + (dk ? "&success=Volunteer+declined" : "&error=Failed+to+decline"));
+                if (dk) {
+                    notificationDao.insertNotification(
+                        userId, null, eventId, "declined", "volunteer",
+                        "Your request was not approved for this event.");
+                }
+                response.sendRedirect(base + (dk ? "success=Volunteer+declined" : "error=Failed+to+decline"));
                 break;
 
             case "mark-attended":
                 assignmentDao.markAttendance(userId, eventId, true);
-                response.sendRedirect(base + "&success=Marked+as+attended+and+points+awarded");
+                response.sendRedirect(base + "success=Marked+as+attended+and+points+awarded");
                 break;
 
             case "mark-absent":
                 assignmentDao.markAttendance(userId, eventId, false);
-                response.sendRedirect(base + "&success=Marked+as+absent");
+                response.sendRedirect(base + "success=Marked+as+absent");
                 break;
 
             default:
-                response.sendRedirect(base + "&error=Unknown+action");
+                response.sendRedirect(base + "error=Unknown+action");
         }
     }
 }

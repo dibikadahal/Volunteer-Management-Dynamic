@@ -1,6 +1,7 @@
 package com.VMS.controller;
 
 import com.VMS.dao.EventDAO;
+import com.VMS.dao.NotificationDAO;
 import com.VMS.dao.VolunteerDAO;
 import com.VMS.model.Event;
 import jakarta.servlet.ServletException;
@@ -13,8 +14,9 @@ import java.util.List;
 @WebServlet("/volunteer/browse-events")
 public class VolunteerEventsController extends HttpServlet {
 
-    private final EventDAO     eventDao     = new EventDAO();
-    private final VolunteerDAO volunteerDao = new VolunteerDAO();
+    private final EventDAO        eventDao        = new EventDAO();
+    private final VolunteerDAO    volunteerDao    = new VolunteerDAO();
+    private final NotificationDAO notificationDao = new NotificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -57,6 +59,14 @@ public class VolunteerEventsController extends HttpServlet {
         if ("request".equals(action) && eventId != null && !eventId.isBlank()) {
             boolean ok = volunteerDao.requestVolunteer(userId, eventId.trim());
             if (ok) {
+                notificationDao.insertNotification(
+                    null,              // recipientId null = all admins
+                    userId,            // actorId = the volunteer making the request
+                    eventId.trim(),    // the event they're requesting
+                    "event_request",
+                    "admin",
+                    "A volunteer has requested to join an event."
+                );
                 response.sendRedirect(request.getContextPath()
                     + "/volunteer/browse-events?success=Your+request+has+been+submitted+successfully%21");
             } else {

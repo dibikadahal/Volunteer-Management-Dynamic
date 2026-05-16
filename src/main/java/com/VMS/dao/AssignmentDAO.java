@@ -143,13 +143,11 @@ public class AssignmentDAO {
         List<Map<String, Object>> list = new ArrayList<>();
         String sql =
             "SELECT e.id, e.title, e.location, e.startsAt, e.endsAt, e.status, " +
-            "  COUNT(CASE WHEN v.status='pending'  THEN 1 END) AS pendingCount,  " +
-            "  COUNT(CASE WHEN v.status='accepted' THEN 1 END) AS acceptedCount, " +
-            "  COUNT(CASE WHEN a.attended=TRUE     THEN 1 END) AS attendedCount  " +
+            "  (SELECT COUNT(*) FROM `volunteer` v WHERE v.eventId=e.id AND v.status='pending')  AS pendingCount,  " +
+            "  (SELECT COUNT(*) FROM `volunteer` v WHERE v.eventId=e.id AND v.status='accepted') AS acceptedCount, " +
+            "  (SELECT COUNT(*) FROM `assignment` a WHERE a.eventId=e.id AND a.attended=TRUE)    AS attendedCount  " +
             "FROM `event` e " +
-            "LEFT JOIN `volunteer` v  ON v.eventId = e.id " +
-            "LEFT JOIN `assignment` a ON a.eventId = e.id " +
-            "GROUP BY e.id ORDER BY e.startsAt DESC";
+            "ORDER BY e.startsAt DESC";
         try (Connection conn = DBConnection.getConnection();
              Statement  st   = conn.createStatement()) {
             ResultSet rs  = st.executeQuery(sql);
@@ -287,7 +285,7 @@ public class AssignmentDAO {
 
     /** Total community hours served across ALL volunteers (sum of attended event durations). */
     public int getTotalHoursServedAll() {
-        String sql = "SELECT COALESCE(SUM(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt)), 0) " +
+        String sql = "SELECT COALESCE(SUM(ABS(TIMESTAMPDIFF(HOUR, e.startsAt, e.endsAt))), 0) " +
                      "FROM `assignment` a JOIN `event` e ON a.eventId = e.id WHERE a.attended = TRUE";
         return queryCount(sql);
     }

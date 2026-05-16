@@ -2,7 +2,7 @@ package com.VMS.controller;
 
 import com.VMS.dao.AdminDashboardDAO;
 import com.VMS.dao.EventDAO;
-import com.VMS.dao.VolunteerDAO;
+import com.VMS.dao.NotificationDAO;
 import com.VMS.dao.VolunteerDashboardDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,10 +16,10 @@ import java.util.List;
 @WebServlet({"/admin/dashboard", "/volunteer/dashboard"})
 public class DashboardController extends HttpServlet {
 
-    private final AdminDashboardDAO     adminDao     = new AdminDashboardDAO();
-    private final VolunteerDashboardDAO volunteerDao = new VolunteerDashboardDAO();
-    private final VolunteerDAO          volDao       = new VolunteerDAO();
-    private final EventDAO              eventDao     = new EventDAO();
+    private final AdminDashboardDAO     adminDao        = new AdminDashboardDAO();
+    private final VolunteerDashboardDAO volunteerDao    = new VolunteerDashboardDAO();
+    private final EventDAO              eventDao        = new EventDAO();
+    private final NotificationDAO       notificationDao = new NotificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -46,6 +46,12 @@ public class DashboardController extends HttpServlet {
         }
 
         if (path.equals("/admin/dashboard")) {
+
+            // ── Admin notifications ──
+            List<com.VMS.model.VolunteerNotification> adminNotifs = notificationDao.getNotificationsForAdmin(10);
+            request.setAttribute("adminNotifications", adminNotifs);
+            request.setAttribute("adminNotifTotal",    adminNotifs.size());
+            request.setAttribute("adminUnreadCount",   notificationDao.countUnreadForAdmin());
 
             // ── Volunteer stats ──
             request.setAttribute("totalVolunteers",   adminDao.countTotalVolunteers());
@@ -79,13 +85,12 @@ public class DashboardController extends HttpServlet {
             request.setAttribute("hoursServed",    volunteerDao.getTotalHoursServed(userId));
             request.setAttribute("badgesEarned",   volunteerDao.countBadgesEarned(userId));
             request.setAttribute("rewardPoints",   volunteerDao.getRewardPoints(userId));
-            List<com.VMS.model.VolunteerNotification> notifs = volDao.getStatusNotifications(userId);
-            int notifTotal = notifs.size();
-            Integer lastSeen = (Integer) session.getAttribute("notifLastSeenCount");
-            int unreadCount  = (lastSeen == null) ? notifTotal : Math.max(0, notifTotal - lastSeen);
+
+            List<com.VMS.model.VolunteerNotification> notifs = notificationDao.getNotificationsForVolunteer(userId, 10);
+            int unreadCount = notificationDao.countUnreadForVolunteer(userId);
 
             request.setAttribute("notifications",  notifs);
-            request.setAttribute("notifTotal",     notifTotal);
+            request.setAttribute("notifTotal",     notifs.size());
             request.setAttribute("unreadCount",    unreadCount);
 
             request.getRequestDispatcher("/WEB-INF/pages/volunteer/dashboard.jsp")

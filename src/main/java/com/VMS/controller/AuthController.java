@@ -4,6 +4,7 @@ import java.io.IOException;
 import com.VMS.dao.AdminDashboardDAO;
 import com.VMS.dao.AssignmentDAO;
 import com.VMS.dao.EventDAO;
+import com.VMS.dao.NotificationDAO;
 import com.VMS.dao.UserDAO;
 import com.VMS.dao.UserDAO.LoginException;
 import com.VMS.model.User;
@@ -18,10 +19,11 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet({"/login", "/register", "/logout"})
 public class AuthController extends HttpServlet {
 
-    private final UserDAO           userDao      = new UserDAO();
-    private final AdminDashboardDAO dashboardDao = new AdminDashboardDAO();
-    private final EventDAO          eventDao     = new EventDAO();
-    private final AssignmentDAO     assignDao    = new AssignmentDAO();
+    private final UserDAO           userDao         = new UserDAO();
+    private final AdminDashboardDAO dashboardDao    = new AdminDashboardDAO();
+    private final EventDAO          eventDao        = new EventDAO();
+    private final AssignmentDAO     assignDao       = new AssignmentDAO();
+    private final NotificationDAO   notificationDao = new NotificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -194,6 +196,14 @@ public class AuthController extends HttpServlet {
         boolean isRegistered = userDao.registerUser(user);
 
         if (isRegistered) {
+            notificationDao.insertNotification(
+                null,                             // recipientId null = all admins
+                user.getId(),                     // actorId = the new volunteer
+                null,                             // no event
+                "new_registration",
+                "admin",
+                user.getFirstName() + " " + user.getLastName() + " has submitted a registration request."
+            );
             response.sendRedirect(request.getContextPath()
                 + "/login?success=Registration+submitted!+Please+wait+for+admin+approval+before+signing+in.");
         } else {
