@@ -312,7 +312,8 @@ html, body {
 }
 
 .logo-icon {
-    font-size: 32px;
+    font-size: 28px;
+    color: var(--primary);
     animation: heartbeat 1.5s ease-in-out infinite;
 }
 
@@ -673,11 +674,7 @@ html, body {
     justify-content: center;
     transition: all 0.3s ease;
     padding: 0;
-}
-
-.social-btn svg {
-    width: 18px;
-    height: 18px;
+    font-size: 17px;
 }
 
 .google-btn { color: #EA4335; }
@@ -996,10 +993,6 @@ html, body {
     .social-btn {
         width: 40px;
         height: 40px;
-    }
-
-    .social-btn svg {
-        width: 16px;
-        height: 16px;
+        font-size: 15px;
     }
 }

@@ -313,7 +313,8 @@ html, body {
 }
 
 .logo-icon {
-    font-size: 32px;
+    font-size: 28px;
+    color: var(--primary);
     animation: heartbeat 1.5s ease-in-out infinite;
 }
 
@@ -639,11 +640,7 @@ html, body {
     justify-content: center;
     transition: all 0.3s ease;
     padding: 0;
-}
-
-.social-btn svg {
-    width: 20px;
-    height: 20px;
+    font-size: 18px;
 }
 
 .google-btn {
