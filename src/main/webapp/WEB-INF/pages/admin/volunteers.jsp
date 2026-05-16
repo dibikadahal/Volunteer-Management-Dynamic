@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.User, com.VMS.model.VolunteerEventEntry, java.util.List, java.util.Map" %>
 <%!
     private static String esc(String s) {
@@ -325,6 +325,40 @@
             .stats-grid { grid-template-columns: 1fr !important; }
             .page-body  { padding: 8px !important; }
         }
+
+        /* ══ TABLE RESPONSIVE ══ */
+        .vol-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* ≤1024px hide Member Since */
+        @media (max-width: 1024px) {
+            .vol-table th:nth-child(5), .vol-table td:nth-child(5) { display: none; }
+        }
+        /* ≤768px also hide Phone */
+        @media (max-width: 768px) {
+            .vol-table th:nth-child(3), .vol-table td:nth-child(3) { display: none; }
+            .vol-table td, .vol-table thead th { padding: 10px 10px; font-size: 12px; }
+            .vol-avatar-sm { width: 34px; height: 34px; font-size: 12px; }
+            .stats-grid { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; }
+            .vol-toolbar { gap: 8px; }
+            .search-box { min-width: 100%; }
+        }
+        /* ≤560px also hide Events column */
+        @media (max-width: 560px) {
+            .vol-table th:nth-child(6), .vol-table td:nth-child(6) { display: none; }
+            .vol-table td, .vol-table thead th { padding: 8px 8px; font-size: 11px; }
+        }
+        /* ≤400px also hide Status column */
+        @media (max-width: 400px) {
+            .vol-table th:nth-child(4), .vol-table td:nth-child(4) { display: none; }
+            .stats-grid { grid-template-columns: 1fr !important; }
+        }
+        /* modal mobile */
+        @media (max-width: 600px) {
+            .modal-box { border-radius: 12px; }
+            .modal-header, .modal-body, .modal-footer { padding: 14px 16px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .profile-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -335,7 +369,7 @@
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">&#9825;</div>
+        <div class="logo-icon"><i class="fas fa-heart"></i></div>
         <span>VolunteerHub</span>
     </div>
     <div class="sidebar-section-label">Main Menu</div>
@@ -407,14 +441,14 @@
         <!-- Stats Row -->
         <div class="stats-grid">
 
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                 <div class="stat-value"><%= activeCount %></div>
                 <div class="stat-label">Active Volunteers</div>
                 <div class="stat-change up"><i class="fas fa-circle"></i> Fully approved</div>
             </div>
 
-            <div class="stat-card purple">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
                 <div class="stat-value"><%= pendingCount %></div>
                 <div class="stat-label">Pending Approvals</div>
@@ -426,7 +460,7 @@
                 </div>
             </div>
 
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= totalRegs %></div>
                 <div class="stat-label">Accepted Registrations</div>

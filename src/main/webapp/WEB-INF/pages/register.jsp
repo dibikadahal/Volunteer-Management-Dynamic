@@ -1,10 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VolunteerHub - Create Account</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/register.css">
 </head>
 <body>
@@ -35,19 +36,19 @@
                 <p class="side-subtitle">Join thousands of volunteers making a real difference in the world.</p>
                 <div class="benefit-items">
                     <div class="benefit-item">
-                        <span class="benefit-icon">✓</span>
+                        <span class="benefit-icon"><i class="fas fa-check"></i></span>
                         <span class="benefit-text">Find meaningful projects</span>
                     </div>
                     <div class="benefit-item">
-                        <span class="benefit-icon">✓</span>
+                        <span class="benefit-icon"><i class="fas fa-check"></i></span>
                         <span class="benefit-text">Connect with like-minded people</span>
                     </div>
                     <div class="benefit-item">
-                        <span class="benefit-icon">✓</span>
+                        <span class="benefit-icon"><i class="fas fa-check"></i></span>
                         <span class="benefit-text">Track your impact</span>
                     </div>
                     <div class="benefit-item">
-                        <span class="benefit-icon">✓</span>
+                        <span class="benefit-icon"><i class="fas fa-check"></i></span>
                         <span class="benefit-text">Grow your skills</span>
                     </div>
                 </div>
@@ -73,7 +74,7 @@
             <div class="form-wrapper">
                 <!-- Logo -->
                 <div class="logo-container">
-                    <div class="logo-icon">♡</div>
+                    <div class="logo-icon"><i class="fas fa-heart"></i></div>
                     <h1 class="logo-text">VolunteerHub</h1>
                 </div>
 
@@ -86,7 +87,7 @@
                 <!-- Server-side error banner -->
                 <% if (request.getAttribute("error") != null) { %>
                 <div class="alert-error" id="serverError">
-                    <span class="alert-icon">⚠</span>
+                    <i class="fas fa-exclamation-triangle alert-icon"></i>
                     <%= request.getAttribute("error") %>
                 </div>
                 <% } %>
@@ -98,7 +99,7 @@
                         <div class="form-group half">
                             <label for="firstName" class="form-label">First Name</label>
                             <div class="form-input-wrapper">
-                                <span class="input-icon">👤</span>
+                                <span class="input-icon"><i class="fas fa-user"></i></span>
                                 <input
                                     type="text"
                                     id="firstName"
@@ -113,7 +114,7 @@
                         <div class="form-group half">
                             <label for="lastName" class="form-label">Last Name</label>
                             <div class="form-input-wrapper">
-                                <span class="input-icon">👤</span>
+                                <span class="input-icon"><i class="fas fa-user"></i></span>
                                 <input
                                     type="text"
                                     id="lastName"
@@ -130,7 +131,7 @@
                     <div class="form-group">
                         <label for="email" class="form-label">Email Address</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">✉</span>
+                            <span class="input-icon"><i class="fas fa-envelope"></i></span>
                             <input
                                 type="email"
                                 id="email"
@@ -147,7 +148,7 @@
                     <div class="form-group">
                         <label for="username" class="form-label">Username</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">@</span>
+                            <span class="input-icon"><i class="fas fa-at"></i></span>
                             <input
                                 type="text"
                                 id="username"
@@ -164,7 +165,7 @@
                     <div class="form-group">
                         <label for="phone" class="form-label">Phone Number</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">📱</span>
+                            <span class="input-icon"><i class="fas fa-phone"></i></span>
                             <input
                                 type="tel"
                                 id="phone"
@@ -182,7 +183,7 @@
                     <div class="form-group">
                         <label for="password" class="form-label">Password</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">🔒</span>
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
                             <input
                                 type="password"
                                 id="password"
@@ -191,7 +192,7 @@
                                 class="form-input"
                             >
                             <button type="button" class="password-toggle" onclick="togglePassword()">
-                                <span class="toggle-icon">👁️</span>
+                                <i id="pwToggleIcon" class="fas fa-eye"></i>
                             </button>
                         </div>
                         <div class="password-strength">
@@ -205,7 +206,7 @@
                     <div class="form-group">
                         <label for="confirmPassword" class="form-label">Confirm Password</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">🔒</span>
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
                             <input
                                 type="password"
                                 id="confirmPassword"
@@ -214,7 +215,7 @@
                                 class="form-input"
                             >
                             <button type="button" class="password-toggle" onclick="toggleConfirmPassword()">
-                                <span class="toggle-icon">👁️</span>
+                                <i id="cpToggleIcon" class="fas fa-eye"></i>
                             </button>
                         </div>
                         <span class="field-error" id="confirmPasswordError"></span>
@@ -234,7 +235,7 @@
                     <button type="submit" class="register-button" id="submitBtn">
                         <span class="button-content">
                             <span class="button-text">Create Account</span>
-                            <span class="button-icon">→</span>
+                            <span class="button-icon"><i class="fas fa-arrow-right"></i></span>
                         </span>
                         <span class="button-shimmer"></span>
                     </button>
@@ -250,13 +251,13 @@
                 <!-- Social Login -->
                 <div class="social-buttons">
                     <button type="button" class="social-btn google-btn" title="Google">
-                        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"/></svg>
+                        <i class="fab fa-google"></i>
                     </button>
                     <button type="button" class="social-btn facebook-btn" title="Facebook">
-                        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/></svg>
+                        <i class="fab fa-facebook-f"></i>
                     </button>
                     <button type="button" class="social-btn linkedin-btn" title="LinkedIn">
-                        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" fill="currentColor"/></svg>
+                        <i class="fab fa-linkedin-in"></i>
                     </button>
                 </div>
 
@@ -289,22 +290,32 @@
     function setStatus(id, ok) {
         const el = document.getElementById(id);
         if (!el) return;
-        el.textContent = ok === null ? '' : (ok ? '✓' : '✗');
-        el.style.color  = ok === null ? '' : (ok ? '#10B981' : '#EF4444');
+        if (ok === null) {
+            el.innerHTML = '';
+            el.style.opacity = '0';
+        } else if (ok) {
+            el.innerHTML = '<i class="fas fa-check"></i>';
+            el.style.color = '#10B981';
+            el.style.opacity = '1';
+        } else {
+            el.innerHTML = '<i class="fas fa-times"></i>';
+            el.style.color = '#EF4444';
+            el.style.opacity = '1';
+        }
     }
 
     // ── Eye toggles ──────────────────────────────────
     function togglePassword() {
         const input = document.getElementById('password');
-        const btn   = document.querySelector('#password ~ .password-toggle .toggle-icon');
+        const icon  = document.getElementById('pwToggleIcon');
         input.type  = input.type === 'password' ? 'text' : 'password';
-        btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
     }
     function toggleConfirmPassword() {
         const input = document.getElementById('confirmPassword');
-        const btn   = document.querySelector('#confirmPassword ~ .password-toggle .toggle-icon');
+        const icon  = document.getElementById('cpToggleIcon');
         input.type  = input.type === 'password' ? 'text' : 'password';
-        btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
     }
 
     // ── Debounce helper ──────────────────────────────

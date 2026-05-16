@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.Event, java.util.List" %>
 <%!
     private static String esc(String s) {
@@ -196,7 +196,7 @@
 
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-heart"></i></div><span>VolunteerHub</span></div>
     <div class="sidebar-section-label">Main Menu</div>
     <a href="${pageContext.request.contextPath}/admin/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
     <div class="sidebar-section-label">Management</div>

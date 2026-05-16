@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +16,7 @@
     <!-- Left panel -->
     <div class="auth-left">
         <div class="brand">
-            <div class="brand-icon">&#9825;</div>
+            <div class="brand-icon"><i class="fas fa-heart"></i></div>
             <span>VolunteerHub</span>
         </div>
         <div class="left-content">

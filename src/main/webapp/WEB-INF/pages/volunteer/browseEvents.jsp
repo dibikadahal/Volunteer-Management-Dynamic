@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.Event, java.util.List" %>
 <%!
     private static String esc(String s) {
@@ -247,6 +247,79 @@
         .notice-accepted { background: rgba(56,201,176,.1);  color: #38c9b0; border: 1px solid rgba(56,201,176,.25); }
         .notice-declined { background: rgba(224,92,151,.1);  color: #e05c97; border: 1px solid rgba(224,92,151,.25); }
     </style>
+    <style>
+        /* ── MOBILE RESPONSIVE CRITICAL OVERRIDE ── */
+        @media (max-width: 768px) {
+            aside.sidebar { display: none !important; }
+            aside.sidebar.open {
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 260px !important;
+                max-width: 82vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                transform: none !important;
+            }
+            div.main {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-width: 0 !important;
+            }
+            button.menu-toggle { display: flex !important; }
+            .sidebar-overlay   { z-index: 9000 !important; }
+            .topbar            { padding: 10px 14px !important; }
+            .topbar-left p, .topbar-left-text p { display: none !important; }
+            .page-body         { padding: 12px !important; }
+            .stats-grid        { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .bottom-grid, .mid-grid { grid-template-columns: 1fr !important; }
+            .welcome-banner    { flex-direction: column !important; padding: 16px !important; gap: 14px !important; }
+            .welcome-left      { width: 100% !important; }
+            .datetime-block    { text-align: left !important; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+            .page-body  { padding: 8px !important; }
+        }
+
+        /* ══ TABLE RESPONSIVE ══ */
+        .events-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* ≤1024px hide Ends */
+        @media (max-width: 1024px) {
+            .events-table th:nth-child(5), .events-table td:nth-child(5) { display: none; }
+        }
+        /* ≤768px also hide Starts + thumbnail + sub-location */
+        @media (max-width: 768px) {
+            .events-table th:nth-child(4), .events-table td:nth-child(4) { display: none; }
+            .events-table td, .events-table thead th { padding: 10px 10px; font-size: 12px; }
+            .event-thumb, .event-thumb-placeholder { display: none; }
+            .event-title-loc { display: none; }
+            .events-toolbar { gap: 8px; }
+            .search-box { min-width: 100%; }
+        }
+        /* ≤560px also hide Volunteers column */
+        @media (max-width: 560px) {
+            .events-table th:nth-child(6), .events-table td:nth-child(6) { display: none; }
+            .events-table td, .events-table thead th { padding: 8px 8px; font-size: 11px; }
+            .btn-request { font-size: 10px; padding: 4px 8px; }
+        }
+        /* ≤400px also hide Status column */
+        @media (max-width: 400px) {
+            .events-table th:nth-child(3), .events-table td:nth-child(3) { display: none; }
+        }
+        /* modal mobile */
+        @media (max-width: 600px) {
+            .modal-box { border-radius: 12px; }
+            .modal-header, .modal-body, .modal-footer { padding: 14px 16px; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
@@ -256,7 +329,7 @@
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">&#9825;</div>
+        <div class="logo-icon"><i class="fas fa-heart"></i></div>
         <span>VolunteerHub</span>
     </div>
     <div class="sidebar-section-label">Main Menu</div>
@@ -671,12 +744,16 @@ function submitModalRequest() {
 
 // ── Mobile sidebar toggle ──
 function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('active');
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var isOpen  = sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+    document.documentElement.style.overflow = isOpen ? 'hidden' : '';
 }
 function closeSidebar() {
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('active');
+    document.documentElement.style.overflow = '';
 }
 </script>
 

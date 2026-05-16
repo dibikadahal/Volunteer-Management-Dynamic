@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.VolunteerNotification, java.util.List" %>
 <%
     String volunteerName = (String) session.getAttribute("userName");
@@ -94,6 +94,46 @@
         .notif-foot a { font-size:12px; color:#4f8ef7; text-decoration:none; font-weight:600; }
         .notif-foot a:hover { opacity:.8; }
     </style>
+    <style>
+        /* ── MOBILE RESPONSIVE CRITICAL OVERRIDE ── */
+        @media (max-width: 768px) {
+            aside.sidebar { display: none !important; }
+            aside.sidebar.open {
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 260px !important;
+                max-width: 82vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                transform: none !important;
+            }
+            div.main {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-width: 0 !important;
+            }
+            button.menu-toggle { display: flex !important; }
+            .sidebar-overlay   { z-index: 9000 !important; }
+            .topbar            { padding: 10px 14px !important; }
+            .topbar-left p, .topbar-left-text p { display: none !important; }
+            .page-body         { padding: 12px !important; }
+            .stats-grid        { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .bottom-grid, .mid-grid { grid-template-columns: 1fr !important; }
+            .welcome-banner    { flex-direction: column !important; padding: 16px !important; gap: 14px !important; }
+            .welcome-left      { width: 100% !important; }
+            .datetime-block    { text-align: left !important; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+            .page-body  { padding: 8px !important; }
+        }
+    </style>
 </head>
 <body>
 
@@ -102,7 +142,7 @@
 
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-heart"></i></div><span>VolunteerHub</span></div>
     <div class="sidebar-section-label">Main Menu</div>
     <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item active">
         <i class="fas fa-th-large"></i> Dashboard
@@ -227,9 +267,6 @@
                 <div class="welcome-tag"><i class="fas fa-heart"></i> Volunteer Member</div>
                 <h1>Welcome back, <span class="gradient-text"><%= volunteerName %></span>!</h1>
                 <p>Every effort you make creates a ripple of positive change. Keep going!</p>
-                <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="browse-btn">
-                    <i class="fas fa-search"></i> Browse Events
-                </a>
             </div>
             <div class="datetime-block">
                 <div class="datetime-time" id="live-time">--:--:--</div>
@@ -240,25 +277,25 @@
 
         <!-- Stat Cards -->
         <div class="stats-grid">
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= totalAttended %></div>
                 <div class="stat-label">Events Attended</div>
                 <div class="stat-sub">Total participation record</div>
             </div>
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="stat-value"><%= upcomingCount %></div>
                 <div class="stat-label">Upcoming Events</div>
                 <div class="stat-sub">You are registered for</div>
             </div>
-            <div class="stat-card purple">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
                 <div class="stat-value"><%= hoursServed %></div>
                 <div class="stat-label">Hours Served</div>
                 <div class="stat-sub">Community service hours</div>
             </div>
-            <div class="stat-card amber">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-star"></i></div>
                 <div class="stat-value"><%= rewardPoints %></div>
                 <div class="stat-label">Reward Points</div>
@@ -278,40 +315,23 @@
                 <div class="empty-panel">
                     <i class="fas fa-calendar-times"></i>
                     <p>You have no upcoming events yet.</p>
-                    <a href="${pageContext.request.contextPath}/volunteer/browse-events">
-                        <i class="fas fa-search"></i> Browse Events
-                    </a>
+                    <a href="${pageContext.request.contextPath}/volunteer/browse-events">Browse Events</a>
                 </div>
                 <% } else { %>
-                <div class="event-list">
-                    <div class="empty-panel">
-                        <i class="fas fa-calendar-alt"></i>
-                        <p>You have <%= upcomingCount %> upcoming event(s).</p>
-                        <a href="${pageContext.request.contextPath}/volunteer/my-events">View My Events</a>
-                    </div>
+                <div style="padding:28px 24px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;">
+                    <div style="font-size:52px; font-weight:700; color:var(--accent-teal); font-family:'Sora',sans-serif; line-height:1;"><%= upcomingCount %></div>
+                    <div style="font-size:14px; color:var(--text-secondary); font-weight:500;">upcoming event<%= upcomingCount != 1 ? "s" : "" %> scheduled</div>
+                    <a href="${pageContext.request.contextPath}/volunteer/my-events"
+                       style="margin-top:8px; display:inline-block; padding:9px 22px; border-radius:10px;
+                              background:rgba(56,201,176,.15); color:#38c9b0; font-size:13px; font-weight:600;
+                              text-decoration:none; border:1px solid rgba(56,201,176,.25);">
+                        View My Events &rarr;
+                    </a>
                 </div>
                 <% } %>
             </div>
 
             <div class="right-col">
-                <div class="panel">
-                    <div class="panel-header"><h3><i class="fas fa-bolt"></i> Quick Actions</h3></div>
-                    <div class="quick-actions">
-                        <a href="${pageContext.request.contextPath}/volunteer/browse-events" class="qa-btn teal-qa">
-                            <i class="fas fa-search"></i><span>Find Events</span>
-                        </a>
-                        <a href="${pageContext.request.contextPath}/volunteer/my-events" class="qa-btn blue-qa">
-                            <i class="fas fa-heart"></i><span>My Events</span>
-                        </a>
-                        <a href="${pageContext.request.contextPath}/volunteer/my-events?tab=completed" class="qa-btn purple-qa">
-                            <i class="fas fa-history"></i><span>View History</span>
-                        </a>
-                        <a href="${pageContext.request.contextPath}/volunteer/profile" class="qa-btn amber-qa">
-                            <i class="fas fa-user-edit"></i><span>Edit Profile</span>
-                        </a>
-                    </div>
-                </div>
-
                 <div class="panel">
                     <div class="panel-header"><h3><i class="fas fa-chart-line"></i> My Progress</h3></div>
                     <% if (totalAttended == 0 && hoursServed == 0 && badgesEarned == 0) { %>
@@ -367,17 +387,40 @@
             <div class="empty-panel">
                 <i class="fas fa-history"></i>
                 <p>No activity yet. Join your first event to get started!</p>
-                <a href="${pageContext.request.contextPath}/volunteer/browse-events">
-                    <i class="fas fa-search"></i> Find Events
-                </a>
+                <a href="${pageContext.request.contextPath}/volunteer/browse-events">Browse Events</a>
             </div>
             <% } else { %>
-            <div class="activity-list">
-                <div class="empty-panel">
-                    <i class="fas fa-check-circle"></i>
-                    <p>You have attended <%= totalAttended %> event(s).</p>
-                    <a href="${pageContext.request.contextPath}/volunteer/my-events?tab=completed">View Full History</a>
+            <div style="padding:20px 24px; display:flex; flex-direction:column; gap:14px;">
+                <div style="display:flex; align-items:center; gap:14px; padding:14px 16px;
+                            background:rgba(56,201,176,.07); border-radius:10px; border:1px solid rgba(56,201,176,.15);">
+                    <i class="fas fa-calendar-check" style="font-size:20px; color:#38c9b0; flex-shrink:0;"></i>
+                    <div>
+                        <div style="font-size:14px; font-weight:600; color:var(--text-primary);"><%= totalAttended %> event<%= totalAttended != 1 ? "s" : "" %> attended</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Total participation record</div>
+                    </div>
                 </div>
+                <div style="display:flex; align-items:center; gap:14px; padding:14px 16px;
+                            background:rgba(79,142,247,.07); border-radius:10px; border:1px solid rgba(79,142,247,.15);">
+                    <i class="fas fa-hourglass-half" style="font-size:20px; color:#4f8ef7; flex-shrink:0;"></i>
+                    <div>
+                        <div style="font-size:14px; font-weight:600; color:var(--text-primary);"><%= hoursServed %> hour<%= hoursServed != 1 ? "s" : "" %> served</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Community service hours</div>
+                    </div>
+                </div>
+                <% if (badgesEarned > 0) { %>
+                <div style="display:flex; align-items:center; gap:14px; padding:14px 16px;
+                            background:rgba(245,166,35,.07); border-radius:10px; border:1px solid rgba(245,166,35,.15);">
+                    <i class="fas fa-medal" style="font-size:20px; color:#f5a623; flex-shrink:0;"></i>
+                    <div>
+                        <div style="font-size:14px; font-weight:600; color:var(--text-primary);"><%= badgesEarned %> badge<%= badgesEarned != 1 ? "s" : "" %> earned</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Every 50 reward points</div>
+                    </div>
+                </div>
+                <% } %>
+                <a href="${pageContext.request.contextPath}/volunteer/my-events"
+                   style="align-self:flex-start; font-size:13px; color:#4f8ef7; text-decoration:none; font-weight:600;">
+                    View Full History &rarr;
+                </a>
             </div>
             <% } %>
         </div>
@@ -445,12 +488,16 @@
 
     // ── Mobile sidebar toggle ──
     function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('open');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
+        var sidebar = document.querySelector('.sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        var isOpen  = sidebar.classList.toggle('open');
+        overlay.classList.toggle('active', isOpen);
+        document.documentElement.style.overflow = isOpen ? 'hidden' : '';
     }
     function closeSidebar() {
         document.querySelector('.sidebar').classList.remove('open');
         document.getElementById('sidebarOverlay').classList.remove('active');
+        document.documentElement.style.overflow = '';
     }
 </script>
 

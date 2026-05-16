@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.VolunteerAssignmentEntry, java.util.List" %>
 <%!
     private static String h(String s) {
@@ -25,6 +25,8 @@
     int totalPoints   = request.getAttribute("totalPoints")   != null ? (Integer) request.getAttribute("totalPoints")   : 0;
     int totalAttended = request.getAttribute("totalAttended") != null ? (Integer) request.getAttribute("totalAttended") : 0;
     int totalAccepted = request.getAttribute("totalAccepted") != null ? (Integer) request.getAttribute("totalAccepted") : 0;
+    int hoursServed   = request.getAttribute("hoursServed")   != null ? (Integer) request.getAttribute("hoursServed")   : 0;
+    int badgesEarned  = request.getAttribute("badgesEarned")  != null ? (Integer) request.getAttribute("badgesEarned")  : 0;
 
     // ── Badge tiers (attendance-count based) ──────────────────────────────────
     int[]    tierAt     = {0, 1,           3,        5,         10,          25,          50};
@@ -213,6 +215,74 @@
         .empty i { font-size:28px; display:block; margin-bottom:10px; opacity:.3; }
         .empty a { display:inline-block; margin-top:12px; padding:8px 18px; border-radius:9px; background:rgba(79,142,247,.15); color:#4f8ef7; font-size:12px; font-weight:600; text-decoration:none; border:1px solid rgba(79,142,247,.25); }
     </style>
+    <style>
+        /* ── MOBILE RESPONSIVE CRITICAL OVERRIDE ── */
+        @media (max-width: 768px) {
+            aside.sidebar { display: none !important; }
+            aside.sidebar.open {
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 260px !important;
+                max-width: 82vw !important;
+                height: 100vh !important;
+                z-index: 9999 !important;
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                transform: none !important;
+            }
+            div.main {
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                min-width: 0 !important;
+            }
+            button.menu-toggle { display: flex !important; }
+            .sidebar-overlay   { z-index: 9000 !important; }
+            .topbar            { padding: 10px 14px !important; }
+            .topbar-left p, .topbar-left-text p { display: none !important; }
+            .page-body         { padding: 12px !important; }
+            .stats-grid        { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .bottom-grid, .mid-grid { grid-template-columns: 1fr !important; }
+            .welcome-banner    { flex-direction: column !important; padding: 16px !important; gap: 14px !important; }
+            .welcome-left      { width: 100% !important; }
+            .datetime-block    { text-align: left !important; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr !important; }
+            .page-body  { padding: 8px !important; }
+        }
+
+        /* ══ TABLE RESPONSIVE ══ */
+        .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* ≤1024px hide Completed At */
+        @media (max-width: 1024px) {
+            .hist-tbl th:nth-child(6), .hist-tbl td:nth-child(6) { display: none; }
+        }
+        /* ≤768px also hide Location */
+        @media (max-width: 768px) {
+            .hist-tbl th:nth-child(3), .hist-tbl td:nth-child(3) { display: none; }
+            .hist-tbl td, .hist-tbl thead th { padding: 10px 10px; font-size: 12px; }
+            .badge-panel { flex-direction: column; gap: 16px; padding: 16px; }
+            .badge-progress-wrap { min-width: unset; }
+            .tab-btn { padding: 8px 10px; font-size: 12px; }
+        }
+        /* ≤560px also hide Event Period */
+        @media (max-width: 560px) {
+            .hist-tbl th:nth-child(4), .hist-tbl td:nth-child(4) { display: none; }
+            .hist-tbl td, .hist-tbl thead th { padding: 8px 8px; font-size: 11px; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        /* ≤400px hide # column */
+        @media (max-width: 400px) {
+            .hist-tbl th:nth-child(1), .hist-tbl td:nth-child(1) { display: none; }
+            .tier-row { gap: 5px; }
+            .tier-item { min-width: 42px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -221,7 +291,7 @@
 
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-heart"></i></div><span>VolunteerHub</span></div>
     <div class="sidebar-section-label">Main Menu</div>
     <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
     <div class="sidebar-section-label">Events</div>
@@ -266,23 +336,29 @@
 
         <!-- ── STAT CARDS ─────────────────────────────────────────────────── -->
         <div class="stats-grid">
-            <div class="stat-card amber">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
                 <div class="stat-value"><%= pending.size() %></div>
                 <div class="stat-label">Pending Requests</div>
                 <div class="stat-sub">Awaiting admin approval</div>
             </div>
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="stat-value"><%= upcoming.size() %></div>
                 <div class="stat-label">Upcoming Events</div>
                 <div class="stat-sub">You are confirmed for</div>
             </div>
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= totalAttended %></div>
-                <div class="stat-label">Events Completed</div>
+                <div class="stat-label">Events Attended</div>
                 <div class="stat-sub">Confirmed attendance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-business-time"></i></div>
+                <div class="stat-value"><%= hoursServed %></div>
+                <div class="stat-label">Hours Served</div>
+                <div class="stat-sub"><%= badgesEarned %> badge<%= badgesEarned != 1 ? "s" : "" %> earned</div>
             </div>
         </div>
 
@@ -341,10 +417,20 @@
                 <% } %>
                 </div>
 
-                <!-- Points summary -->
-                <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
-                    <i class="fas fa-star" style="color:#f5a623; font-size:11px;"></i>
-                    <strong style="color:#f5a623;"><%= totalPoints %></strong> reward points earned
+                <!-- Points & badges summary -->
+                <div style="margin-top:12px; font-size:12px; color:var(--text-muted); display:flex; gap:16px; flex-wrap:wrap;">
+                    <span>
+                        <i class="fas fa-star" style="color:#f5a623; font-size:11px;"></i>
+                        <strong style="color:#f5a623;"><%= totalPoints %></strong> reward points
+                    </span>
+                    <span>
+                        <i class="fas fa-certificate" style="color:#7c5cbf; font-size:11px;"></i>
+                        <strong style="color:#7c5cbf;"><%= badgesEarned %></strong> badge<%= badgesEarned != 1 ? "s" : "" %> earned
+                    </span>
+                    <span>
+                        <i class="fas fa-business-time" style="color:#4f8ef7; font-size:11px;"></i>
+                        <strong style="color:#4f8ef7;"><%= hoursServed %></strong> hour<%= hoursServed != 1 ? "s" : "" %> served
+                    </span>
                 </div>
             </div>
         </div>
@@ -682,12 +768,16 @@ function switchTab(name, btn) {
 
 // ── Mobile sidebar toggle ──
 function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('active');
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var isOpen  = sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+    document.documentElement.style.overflow = isOpen ? 'hidden' : '';
 }
 function closeSidebar() {
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('active');
+    document.documentElement.style.overflow = '';
 }
 </script>
 

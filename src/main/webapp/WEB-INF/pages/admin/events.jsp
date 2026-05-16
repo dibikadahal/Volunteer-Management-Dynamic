@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.Event, java.util.List" %>
 <%!
     /* JavaScript-safe string escape helper */
@@ -339,6 +339,42 @@
             .stats-grid { grid-template-columns: 1fr !important; }
             .page-body  { padding: 8px !important; }
         }
+
+        /* ══ TABLE RESPONSIVE ══ */
+        .events-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* ≤1024px hide Ends */
+        @media (max-width: 1024px) {
+            .events-table th:nth-child(5), .events-table td:nth-child(5) { display: none; }
+        }
+        /* ≤768px also hide Starts + event thumbnail + sub-location text */
+        @media (max-width: 768px) {
+            .events-table th:nth-child(4), .events-table td:nth-child(4) { display: none; }
+            .events-table td, .events-table thead th { padding: 10px 10px; font-size: 12px; }
+            .event-thumb, .event-thumb-placeholder { display: none; }
+            .event-title-loc { display: none; }
+            .stats-grid { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; }
+            .events-toolbar { gap: 8px; }
+            .search-box { min-width: 100%; }
+        }
+        /* ≤560px also hide Location column */
+        @media (max-width: 560px) {
+            .events-table th:nth-child(6), .events-table td:nth-child(6) { display: none; }
+            .events-table td, .events-table thead th { padding: 8px 8px; font-size: 11px; }
+            .btn-sm { font-size: 10px; padding: 4px 7px; }
+        }
+        /* ≤400px also hide Volunteers column */
+        @media (max-width: 400px) {
+            .events-table th:nth-child(7), .events-table td:nth-child(7) { display: none; }
+            .stats-grid { grid-template-columns: 1fr !important; }
+        }
+        /* modal mobile */
+        @media (max-width: 600px) {
+            .modal-box { border-radius: 12px; }
+            .modal-header, .modal-body, .modal-footer { padding: 14px 16px; }
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -349,7 +385,7 @@
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">&#9825;</div>
+        <div class="logo-icon"><i class="fas fa-heart"></i></div>
         <span>VolunteerHub</span>
     </div>
     <div class="sidebar-section-label">Main Menu</div>
@@ -426,28 +462,28 @@
         <!-- Stats Row -->
         <div class="stats-grid">
 
-            <div class="stat-card purple">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                 <div class="stat-value"><%= totalEvents %></div>
                 <div class="stat-label">Total Events</div>
                 <div class="stat-change up"><i class="fas fa-list"></i> All time</div>
             </div>
 
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= openEvents %></div>
                 <div class="stat-label">Active Events</div>
                 <div class="stat-change up"><i class="fas fa-door-open"></i> Upcoming &amp; ongoing</div>
             </div>
 
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
                 <div class="stat-value"><%= eventsThisMonth %></div>
                 <div class="stat-label">Events This Month</div>
                 <div class="stat-change"><i class="fas fa-clock"></i> Starting this month</div>
             </div>
 
-            <div class="stat-card pink">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-value"><%= totalRegistrations %></div>
                 <div class="stat-label">Total Registrations</div>

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.VMS.model.VolunteerAssignmentEntry, java.util.List" %>
 <%!
     private static String h(String s) {
@@ -180,7 +180,7 @@
 
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">&#9825;</div><span>VolunteerHub</span></div>
+    <div class="sidebar-logo"><div class="logo-icon"><i class="fas fa-heart"></i></div><span>VolunteerHub</span></div>
     <div class="sidebar-section-label">Main Menu</div>
     <a href="${pageContext.request.contextPath}/volunteer/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
     <div class="sidebar-section-label">Events</div>
@@ -227,19 +227,19 @@
 
         <!-- Stat Cards -->
         <div class="stats-grid">
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="stat-value"><%= upcoming.size() %></div>
                 <div class="stat-label">Upcoming Events</div>
                 <div class="stat-sub">You are assigned to</div>
             </div>
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= totalAttended %></div>
                 <div class="stat-label">Events Attended</div>
                 <div class="stat-sub">Confirmed attendance</div>
             </div>
-            <div class="stat-card amber">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-star"></i></div>
                 <div class="stat-value"><%= totalPoints %></div>
                 <div class="stat-label">Reward Points</div>

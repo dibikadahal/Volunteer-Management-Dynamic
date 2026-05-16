@@ -1,10 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VolunteerHub - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/login.css">
 </head>
 <body>
@@ -59,7 +60,7 @@
 
                 <!-- Logo -->
                 <div class="logo-container">
-                    <div class="logo-icon">&#9825;</div>
+                    <div class="logo-icon"><i class="fas fa-heart"></i></div>
                     <h1 class="logo-text">VolunteerHub</h1>
                 </div>
 
@@ -74,14 +75,14 @@
                 <%-- Session expired --%>
                 <% if ("true".equals(request.getParameter("expired"))) { %>
                 <div class="alert alert-warning">
-                    &#9201; Your session has expired. Please sign in again.
+                    <i class="fas fa-clock"></i> Your session has expired. Please sign in again.
                 </div>
                 <% } %>
 
                 <%-- Success (after registration or password reset) --%>
                 <% if (request.getParameter("success") != null) { %>
                 <div class="alert alert-success">
-                    &#10003; <%= request.getParameter("success") %>
+                    <i class="fas fa-check-circle"></i> <%= request.getParameter("success") %>
                 </div>
                 <% } %>
 
@@ -103,7 +104,7 @@
                     <div class="form-group">
                         <label for="email" class="form-label">Email Address</label>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">&#9993;</span>
+                            <span class="input-icon"><i class="fas fa-envelope"></i></span>
                             <input type="text" id="email" name="email"
                                    placeholder="Enter your email"
                                    class="form-input">
@@ -119,12 +120,12 @@
                             <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-link">Forgot?</a>
                         </div>
                         <div class="form-input-wrapper">
-                            <span class="input-icon">&#128274;</span>
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
                             <input type="password" id="password" name="password"
                                    placeholder="Enter your password"
                                    class="form-input">
                             <button type="button" class="password-toggle" onclick="togglePassword()">
-                                <span class="toggle-icon">&#128065;&#65039;</span>
+                                <i id="pwToggleIcon" class="fas fa-eye"></i>
                             </button>
                         </div>
                         <span class="field-error" id="passwordError"></span>
@@ -141,7 +142,7 @@
                     <button type="submit" class="login-button">
                         <span class="button-content">
                             <span class="button-text">Sign In</span>
-                            <span class="button-icon">&#8594;</span>
+                            <span class="button-icon"><i class="fas fa-arrow-right"></i></span>
                         </span>
                         <span class="button-shimmer"></span>
                     </button>
@@ -158,13 +159,13 @@
                 <!-- Social Buttons -->
                 <div class="social-buttons">
                     <button type="button" class="social-btn google-btn" title="Google">
-                        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"/></svg>
+                        <i class="fab fa-google"></i>
                     </button>
                     <button type="button" class="social-btn facebook-btn" title="Facebook">
-                        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/></svg>
+                        <i class="fab fa-facebook-f"></i>
                     </button>
                     <button type="button" class="social-btn linkedin-btn" title="LinkedIn">
-                        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" fill="currentColor"/></svg>
+                        <i class="fab fa-linkedin-in"></i>
                     </button>
                 </div>
 
@@ -178,7 +179,7 @@
 
             <!-- Footer -->
             <div class="login-footer">
-                <p class="footer-text">&#169; 2026 VolunteerHub. All rights reserved.</p>
+                <p class="footer-text">&copy; 2026 VolunteerHub. All rights reserved.</p>
                 <div class="footer-links">
                     <a href="#privacy">Privacy Policy</a>
                     <a href="#terms">Terms of Service</a>
@@ -191,13 +192,13 @@
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
-            const toggleBtn = document.querySelector('.password-toggle');
+            const icon = document.getElementById('pwToggleIcon');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleBtn.innerHTML = '<span class="toggle-icon">&#128584;</span>';
+                icon.className = 'fas fa-eye-slash';
             } else {
                 passwordInput.type = 'password';
-                toggleBtn.innerHTML = '<span class="toggle-icon">&#128065;&#65039;</span>';
+                icon.className = 'fas fa-eye';
             }
         }
 

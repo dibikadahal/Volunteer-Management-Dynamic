@@ -1,9 +1,16 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.VMS.model.User, java.util.List, java.util.Map, java.text.SimpleDateFormat" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.VMS.model.User, com.VMS.model.VolunteerNotification, java.util.List, java.util.Map, java.text.SimpleDateFormat" %>
 <%
     String adminName = (String) session.getAttribute("userName");
     if (adminName == null) adminName = "Admin";
     String initials = adminName.length() > 0 ? String.valueOf(adminName.charAt(0)).toUpperCase() : "A";
+
+    @SuppressWarnings("unchecked")
+    List<VolunteerNotification> adminNotifications =
+        (List<VolunteerNotification>) request.getAttribute("adminNotifications");
+    if (adminNotifications == null) adminNotifications = new java.util.ArrayList<>();
+    int adminUnreadCount = request.getAttribute("adminUnreadCount") != null
+                           ? (Integer) request.getAttribute("adminUnreadCount") : 0;
 
     int totalVolunteers   = (Integer) request.getAttribute("totalVolunteers");
     int activeVolunteers  = (Integer) request.getAttribute("activeVolunteers");
@@ -42,7 +49,7 @@
         .pending-list { display:flex; flex-direction:column; gap:0; }
         .pending-item {
             display:flex; align-items:center; gap:14px;
-            padding:14px 0; border-bottom:1px solid var(--border);
+            padding:14px 20px; border-bottom:1px solid var(--border);
         }
         .pending-item:last-child { border-bottom:none; }
         .pending-info { flex:1; min-width:0; }
@@ -229,7 +236,7 @@
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <div class="logo-icon">&#9825;</div>
+        <div class="logo-icon"><i class="fas fa-heart"></i></div>
         <span>VolunteerHub</span>
     </div>
     <div class="sidebar-section-label">Main Menu</div>
@@ -278,48 +285,47 @@
             </div>
         </div>
         <div class="topbar-right">
-            <% int totalNotifCount = pendingCount + pendingEventCount; %>
             <div class="notif-wrapper">
                 <div class="topbar-icon-btn" id="notifBtn" onclick="toggleNotif(event)"
                      style="cursor:pointer; position:relative;">
                     <i class="fas fa-bell"></i>
-                    <% if (totalNotifCount > 0) { %>
-                    <span class="notif-badge"><%= totalNotifCount %></span>
+                    <% if (adminUnreadCount > 0) { %>
+                    <span class="notif-badge" id="notifBadge"><%= adminUnreadCount %></span>
                     <% } %>
                 </div>
                 <div class="notif-dropdown" id="notifDropdown">
                     <div class="notif-head">
                         <span class="notif-head-title"><i class="fas fa-bell" style="color:#f5a623;margin-right:6px;font-size:12px;"></i>Notifications</span>
-                        <span class="notif-head-sub"><%= totalNotifCount %> pending</span>
+                        <span class="notif-head-sub"><%= adminNotifications.size() %> total</span>
                     </div>
                     <div class="notif-list">
-                        <%-- Pending volunteer registrations --%>
-                        <% if (pendingVolunteers != null && !pendingVolunteers.isEmpty()) { %>
-                        <div class="notif-section-label"><i class="fas fa-user-plus" style="font-size:9px;margin-right:4px;"></i>New Registrations</div>
-                        <% int pi = 0; for (User pv : pendingVolunteers) { if (++pi > 5) break; %>
+                        <% if (adminNotifications.isEmpty()) { %>
+                        <div class="notif-empty"><i class="fas fa-check-circle"></i>No notifications yet.</div>
+                        <% } else {
+                            for (VolunteerNotification an : adminNotifications) {
+                                boolean isReg = "new_registration".equals(an.getStatus());
+                        %>
                         <div class="notif-item">
-                            <div class="notif-icon-wrap ni-reg"><i class="fas fa-user-clock"></i></div>
+                            <div class="notif-icon-wrap <%= isReg ? "ni-reg" : "ni-event" %>">
+                                <i class="fas <%= isReg ? "fa-user-clock" : "fa-calendar-alt" %>"></i>
+                            </div>
                             <div class="notif-body">
-                                <div class="notif-msg"><strong><%= pv.getFullName() %></strong> wants to join as a volunteer</div>
-                                <div class="notif-time"><i class="fas fa-clock" style="font-size:9px;"></i> <%= pv.getCreatedAt() != null ? sdf.format(pv.getCreatedAt()) : "" %></div>
+                                <div class="notif-msg">
+                                    <% if (isReg) { %>
+                                        <strong><%= an.getActorName().isEmpty() ? "A volunteer" : an.getActorName() %></strong> submitted a registration request.
+                                    <% } else { %>
+                                        <strong><%= an.getActorName().isEmpty() ? "A volunteer" : an.getActorName() %></strong> requested to join
+                                        <% if (an.getEventTitle() != null && !an.getEventTitle().isEmpty()) { %>
+                                            <strong><%= an.getEventTitle() %></strong>.
+                                        <% } else { %> an event.<% } %>
+                                    <% } %>
+                                </div>
+                                <% if (an.getUpdatedAt() != null && !an.getUpdatedAt().isEmpty()) { %>
+                                <div class="notif-time"><i class="fas fa-clock" style="font-size:9px;"></i> <%= an.getUpdatedAt() %></div>
+                                <% } %>
                             </div>
                         </div>
                         <% } } %>
-                        <%-- Pending event requests --%>
-                        <% if (!pendingEventRequests.isEmpty()) { %>
-                        <div class="notif-section-label"><i class="fas fa-calendar-plus" style="font-size:9px;margin-right:4px;"></i>Event Requests</div>
-                        <% int ei2 = 0; for (java.util.Map<String,Object> er : pendingEventRequests) { if (++ei2 > 5) break; %>
-                        <div class="notif-item">
-                            <div class="notif-icon-wrap ni-event"><i class="fas fa-calendar-alt"></i></div>
-                            <div class="notif-body">
-                                <div class="notif-msg"><strong><%= er.get("volunteerName") %></strong> requested to join <strong><%= er.get("eventTitle") %></strong></div>
-                                <div class="notif-time"><i class="fas fa-clock" style="font-size:9px;"></i> <%= er.get("requestedOn") %></div>
-                            </div>
-                        </div>
-                        <% } } %>
-                        <% if (totalNotifCount == 0) { %>
-                        <div class="notif-empty"><i class="fas fa-check-circle"></i>All caught up — no pending items!</div>
-                        <% } %>
                     </div>
                     <div class="notif-foot">
                         <a href="${pageContext.request.contextPath}/admin/assignments">Go to Assignments &rarr;</a>
@@ -367,14 +373,14 @@
         <!-- Stat cards -->
         <div class="stats-grid">
 
-            <div class="stat-card purple">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-value"><%= totalVolunteers %></div>
                 <div class="stat-label">Total Volunteers</div>
                 <div class="stat-change up"><i class="fas fa-user-check"></i> <%= activeVolunteers %> active</div>
             </div>
 
-            <div class="stat-card pink">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
                 <div class="stat-value"><%= pendingCount %></div>
                 <div class="stat-label">Pending Approvals</div>
@@ -384,7 +390,7 @@
                 </div>
             </div>
 
-            <div class="stat-card teal">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
                 <div class="stat-value"><%= pendingEventCount %></div>
                 <div class="stat-label">Event Requests</div>
@@ -394,7 +400,7 @@
                 </div>
             </div>
 
-            <div class="stat-card blue">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                 <div class="stat-value"><%= eventsThisMonth %></div>
                 <div class="stat-label">Events This Month</div>
@@ -497,7 +503,7 @@
                     String vInitials = vName != null && vName.trim().length() > 0
                         ? String.valueOf(vName.trim().charAt(0)).toUpperCase() : "?";
                 %>
-                <div class="pending-item" style="align-items:flex-start; padding:16px 0;">
+                <div class="pending-item" style="align-items:flex-start; padding:16px 20px;">
                     <div class="reg-avatar <%= eColor %>" style="margin-top:2px;"><%= vInitials %></div>
                     <div class="pending-info" style="flex:1;">
                         <div class="pending-name"><%= vName != null ? vName : "—" %></div>
@@ -664,9 +670,21 @@
     });
 
     // ── Notification dropdown ──
+    var ADMIN_UNREAD = <%= adminUnreadCount %>;
     function toggleNotif(e) {
         e.stopPropagation();
-        document.getElementById('notifDropdown').classList.toggle('open');
+        var dd = document.getElementById('notifDropdown');
+        var isOpening = !dd.classList.contains('open');
+        dd.classList.toggle('open');
+        if (isOpening && ADMIN_UNREAD > 0) {
+            var badge = document.getElementById('notifBadge');
+            if (badge) badge.style.opacity = '0';
+            fetch('<%= request.getContextPath() %>/admin/notifications/mark-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }).then(function() { if (badge) badge.remove(); });
+            ADMIN_UNREAD = 0;
+        }
     }
     document.addEventListener('click', function(e) {
         var dd = document.getElementById('notifDropdown');
